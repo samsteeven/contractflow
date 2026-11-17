@@ -1,0 +1,25 @@
+name: contractflow
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: contractflow-postgres
+    environment:
+      POSTGRES_USER: contractflow
+      POSTGRES_PASSWORD: contractflow
+      POSTGRES_DB: contractflow
+    ports:
+      - '127.0.0.1:${DB_PORT:-5438}:5432'
+    volumes:
+      # PostgreSQL 18 range ses données dans un sous-dossier versionné de /var/lib/postgresql.
+      - pgdata:/var/lib/postgresql
+      # Crée aussi la base des tests (contractflow_test) au premier démarrage.
+      - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U contractflow -d contractflow']
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  pgdata:
