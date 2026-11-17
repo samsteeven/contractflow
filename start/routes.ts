@@ -25,6 +25,14 @@ router
   })
   .use(middleware.guest())
 
+/*
+| Hors session : le webhook du prestataire (authentifié par la signature HMAC du corps)
+| et la page de signature du bac à sable (adresse à identifiant aléatoire).
+*/
+router.post('webhooks/signature', [controllers.Webhooks, 'signature']).as('webhooks.signature')
+router.get('sandbox/sign/:signerId', [controllers.Sandbox, 'show']).as('sandbox.show')
+router.post('sandbox/sign/:signerId', [controllers.Sandbox, 'decide']).as('sandbox.decide')
+
 router.post('logout', [controllers.Session, 'destroy']).use(middleware.auth())
 
 router
@@ -46,6 +54,14 @@ router
     router.post('contracts/:id/comments', [controllers.Comments, 'store']).as('comments.store')
     router.post('contracts/:id/document', [controllers.Documents, 'store']).as('documents.store')
     router.get('contracts/:id/document', [controllers.Documents, 'show']).as('documents.show')
+
+    router.post('contracts/:id/signature', [controllers.Signatures, 'store']).as('signatures.store')
+    router
+      .post('contracts/:id/signature/cancel', [controllers.Signatures, 'cancel'])
+      .as('signatures.cancel')
+    router
+      .get('contracts/:id/signature/proof', [controllers.Signatures, 'proof'])
+      .as('signatures.proof')
 
     router.get('templates', [controllers.Templates, 'index']).as('templates.index')
     router.get('templates/new', [controllers.Templates, 'create']).as('templates.create')

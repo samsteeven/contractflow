@@ -17,6 +17,13 @@ export interface ApiDefinition {
     store: typeof routes['session.store']
     destroy: typeof routes['session.destroy']
   }
+  webhooks: {
+    signature: typeof routes['webhooks.signature']
+  }
+  sandbox: {
+    show: typeof routes['sandbox.show']
+    decide: typeof routes['sandbox.decide']
+  }
   dashboard: typeof routes['dashboard']
   contracts: {
     index: typeof routes['contracts.index']
@@ -35,6 +42,11 @@ export interface ApiDefinition {
   documents: {
     store: typeof routes['documents.store']
     show: typeof routes['documents.show']
+  }
+  signatures: {
+    store: typeof routes['signatures.store']
+    cancel: typeof routes['signatures.cancel']
+    proof: typeof routes['signatures.proof']
   }
   templates: {
     index: typeof routes['templates.index']

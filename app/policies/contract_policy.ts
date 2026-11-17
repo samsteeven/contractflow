@@ -1,6 +1,6 @@
 import type Membership from '#models/membership'
 import type User from '#models/user'
-import { AUTHOR_ROLES } from '#services/vocabulary'
+import { AUTHOR_ROLES, SIGNATURE_ROLES } from '#services/vocabulary'
 import { BasePolicy } from '@adonisjs/bouncer'
 import type { AuthorizerResponse } from '@adonisjs/bouncer/types'
 
@@ -11,5 +11,10 @@ import type { AuthorizerResponse } from '@adonisjs/bouncer/types'
 export default class ContractPolicy extends BasePolicy {
   write(_user: User, membership: Membership): AuthorizerResponse {
     return AUTHOR_ROLES.includes(membership.role)
+  }
+
+  /** Demander ou annuler une signature engage l'organisation. */
+  requestSignature(_user: User, membership: Membership): AuthorizerResponse {
+    return SIGNATURE_ROLES.includes(membership.role)
   }
 }

@@ -1006,15 +1006,19 @@ select.field__input {
   background: var(--card);
 }
 .badge[data-status='in_review'],
+.badge[data-status='signing'],
 .badge[data-status='pending'] {
   border-color: #b7791f;
   color: #8a5a12;
 }
-.badge[data-status='approved'] {
+.badge[data-status='approved'],
+.badge[data-status='signed'],
+.badge[data-status='completed'] {
   border-color: var(--ok);
   color: var(--ok);
 }
-.badge[data-status='rejected'] {
+.badge[data-status='rejected'],
+.badge[data-status='declined'] {
   border-color: #c0392b;
   color: #c0392b;
 }

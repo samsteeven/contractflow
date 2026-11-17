@@ -93,6 +93,8 @@ test.group('Parcours HTTP', (group) => {
       comment: true,
       generateDocument: false,
       downloadDocument: false,
+      requestSignature: false,
+      cancelSignature: false,
       decideApprovalId: null,
     })
     assert.equal(draft.inertiaProps.organization.role, 'member')
@@ -114,6 +116,8 @@ test.group('Parcours HTTP', (group) => {
       comment: true,
       generateDocument: false,
       downloadDocument: false,
+      requestSignature: false,
+      cancelSignature: false,
       decideApprovalId: null,
     })
     assert.equal((await show(legal)).inertiaProps.can.decideApprovalId, legalStep.id)
@@ -157,6 +161,8 @@ test.group('Parcours HTTP', (group) => {
         in_review: 0,
         approved: 1,
         rejected: 0,
+        signing: 0,
+        signed: 0,
       }
     )
   })
@@ -285,6 +291,8 @@ test.group('Isolation et rôles', (group) => {
       comment: false,
       generateDocument: false,
       downloadDocument: false,
+      requestSignature: false,
+      cancelSignature: false,
       decideApprovalId: null,
     })
     assert.isFalse(

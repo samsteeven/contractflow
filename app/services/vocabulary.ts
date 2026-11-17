@@ -25,7 +25,14 @@ export const CONTRACT_TYPES = [
 ] as const
 export type ContractType = (typeof CONTRACT_TYPES)[number]
 
-export const CONTRACT_STATUSES = ['draft', 'in_review', 'approved', 'rejected'] as const
+export const CONTRACT_STATUSES = [
+  'draft',
+  'in_review',
+  'approved',
+  'rejected',
+  'signing',
+  'signed',
+] as const
 export type ContractStatus = (typeof CONTRACT_STATUSES)[number]
 
 export const APPROVAL_STATUSES = ['pending', 'approved', 'rejected', 'skipped'] as const
@@ -38,3 +45,12 @@ export const CONTRACT_TYPE_LABELS: Record<ContractType, string> = {
   nda: 'Accord de confidentialité',
   partnership: 'Partenariat',
 }
+
+/** Rôles qui engagent l'organisation : demander ou annuler une signature. */
+export const SIGNATURE_ROLES: readonly Role[] = ['owner', 'admin', 'manager']
+
+export const SIGNATURE_STATUSES = ['pending', 'completed', 'declined', 'cancelled'] as const
+export type SignatureStatus = (typeof SIGNATURE_STATUSES)[number]
+
+export const SIGNER_STATUSES = ['pending', 'signed', 'declined'] as const
+export type SignerStatus = (typeof SIGNER_STATUSES)[number]

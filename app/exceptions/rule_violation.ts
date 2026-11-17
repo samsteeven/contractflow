@@ -18,6 +18,12 @@ export type RuleViolationReason =
   | 'invalid_template'
   | 'template_name_taken'
   | 'contract_not_approved'
+  | 'contract_in_signature'
+  | 'contract_signed'
+  | 'signature_pending'
+  | 'invalid_signers'
+  | 'invalid_webhook'
+  | 'no_pending_signature'
 
 /**
  * Une règle métier refuse l'action. `reason` identifie la règle (les tests s'appuient dessus),
@@ -29,7 +35,7 @@ export default class RuleViolation extends Exception {
   constructor(
     public reason: RuleViolationReason,
     message: string,
-    status: 403 | 409 | 422 = 409
+    status: 401 | 403 | 409 | 422 = 409
   ) {
     super(message, { status, code: RuleViolation.code })
   }

@@ -2,13 +2,21 @@ import Approval from '#models/approval'
 import AuditLog from '#models/audit_log'
 import Comment from '#models/comment'
 import Contract from '#models/contract'
+import SignatureRequest from '#models/signature_request'
+import SignatureProof from '#models/signature_proof'
 import ContractDocument from '#models/contract_document'
 import ContractTemplate from '#models/contract_template'
 import Workflow from '#models/workflow'
 import { activeStep } from '#services/approval_service'
 import ContractService from '#services/contract_service'
 import { diffLines } from '#services/text_diff'
-import { AUTHOR_ROLES, CONTRACT_STATUSES, type ContractStatus } from '#services/vocabulary'
+import { signatureProvider } from '#services/signature_provider'
+import {
+  AUTHOR_ROLES,
+  CONTRACT_STATUSES,
+  SIGNATURE_ROLES,
+  type ContractStatus,
+} from '#services/vocabulary'
 import ApprovalTransformer from '#transformers/approval_transformer'
 import AuditLogTransformer from '#transformers/audit_log_transformer'
 import CommentTransformer from '#transformers/comment_transformer'
@@ -111,6 +119,14 @@ export default class ContractsController {
       .where('contract_id', contract.id)
       .orderBy('id', 'desc')
       .first()
+    const signatureRequest = await SignatureRequest.query()
+      .where('contract_id', contract.id)
+      .preload('signers')
+      .orderBy('id', 'desc')
+      .first()
+    const proof = signatureRequest
+      ? await SignatureProof.query().where('signature_request_id', signatureRequest.id).first()
+      : null
     const workflows = await Workflow.query()
       .where('organization_id', organization.id)
       .preload('steps')
@@ -136,6 +152,24 @@ export default class ContractsController {
       approvals: ApprovalTransformer.transform(approvals),
       audit: AuditLogTransformer.transform(audit),
       comments: CommentTransformer.transform(comments),
+      signature: signatureRequest
+        ? {
+            status: signatureRequest.status,
+            signers: signatureRequest.signers.map((signer) => ({
+              id: signer.id,
+              name: signer.name,
+              email: signer.email,
+              status: signer.status,
+              signedAt: signer.signedAt?.toISO() ?? null,
+              // Le bac à sable fournit une adresse de signature ; un prestataire réel l'enverrait par e-mail.
+              signUrl:
+                signatureRequest.status === 'pending' && signer.status === 'pending'
+                  ? signatureProvider().signUrl(signer.externalId)
+                  : null,
+            })),
+            hasProof: proof !== null,
+          }
+        : null,
       document: document
         ? { versionId: document.contractVersionId, sizeBytes: document.sizeBytes }
         : null,
@@ -145,9 +179,12 @@ export default class ContractsController {
         steps: workflow.steps.map((step) => `${step.name} (${step.approverRole})`),
       })),
       can: {
-        revise: canWrite && contract.status !== 'in_review',
+        revise: canWrite && !['in_review', 'signing', 'signed'].includes(contract.status),
         submit: canWrite && contract.status === 'draft',
         comment: canWrite,
+        requestSignature:
+          SIGNATURE_ROLES.includes(membership.role) && contract.status === 'approved',
+        cancelSignature: SIGNATURE_ROLES.includes(membership.role) && contract.status === 'signing',
         generateDocument:
           canWrite && contract.status === 'approved' && document?.contractVersionId !== latest.id,
         downloadDocument: document !== null,

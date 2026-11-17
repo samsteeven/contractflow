@@ -86,6 +86,45 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/session_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'webhooks.signature': {
+    methods: ["POST"]
+    pattern: '/webhooks/signature'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/webhooks_controller').default['signature']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/webhooks_controller').default['signature']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/webhooks_controller').default['signature']>>>
+    }
+  }
+  'sandbox.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/sandbox/sign/:signerId'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { signerId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/sandbox_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sandbox_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/sandbox_controller').default['show']>>>
+    }
+  }
+  'sandbox.decide': {
+    methods: ["POST"]
+    pattern: '/sandbox/sign/:signerId'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { signerId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/sandbox_controller').default['decide']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/sandbox_controller').default['decide']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/sandbox_controller').default['decide']>>>
+    }
+  }
   'session.destroy': {
     methods: ["POST"]
     pattern: '/logout'
@@ -240,6 +279,45 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/documents_controller').default['show']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/documents_controller').default['show']>>>
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/documents_controller').default['show']>>>
+    }
+  }
+  'signatures.store': {
+    methods: ["POST"]
+    pattern: '/contracts/:id/signature'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/contract').requestSignatureValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/contract').requestSignatureValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/signatures_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/signatures_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/signatures_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'signatures.cancel': {
+    methods: ["POST"]
+    pattern: '/contracts/:id/signature/cancel'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/signatures_controller').default['cancel']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/signatures_controller').default['cancel']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/signatures_controller').default['cancel']>>>
+    }
+  }
+  'signatures.proof': {
+    methods: ["GET","HEAD"]
+    pattern: '/contracts/:id/signature/proof'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/signatures_controller').default['proof']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/signatures_controller').default['proof']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/signatures_controller').default['proof']>>>
     }
   }
   'templates.index': {

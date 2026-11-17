@@ -2,12 +2,14 @@ import { createHash } from 'node:crypto'
 import PDFDocument from 'pdfkit'
 import RuleViolation from '#exceptions/rule_violation'
 import Approval from '#models/approval'
+import type Contract from '#models/contract'
 import ContractDocument from '#models/contract_document'
 import { recordAudit } from '#services/audit'
 import { latestVersion, lockContract } from '#services/contract_service'
 import { CONTRACT_TYPE_LABELS } from '#services/vocabulary'
 import drive from '@adonisjs/drive/services/main'
 import db from '@adonisjs/lucid/services/db'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import { DateTime } from 'luxon'
 
 type Dossier = {
@@ -82,70 +84,76 @@ export default class DocumentService {
   async generate(organizationId: number, contractId: number, actorId: number) {
     return db.transaction(async (trx) => {
       const contract = await lockContract(trx, organizationId, contractId)
-      if (contract.status !== 'approved') {
-        throw new RuleViolation(
-          'contract_not_approved',
-          "Le PDF n'est produit que pour un contrat approuvé."
-        )
-      }
-      const version = await latestVersion(trx, contract.id)
-      const existing = await ContractDocument.query({ client: trx })
-        .where('contract_version_id', version.id)
-        .first()
-      if (existing) return existing
-
-      const steps = await Approval.query({ client: trx })
-        .where('contract_id', contract.id)
-        .where('contract_version_id', version.id)
-        .where('round', contract.reviewRound)
-        .preload('decider')
-        .orderBy('position')
-      const body = await buildPdf({
-        title: contract.title,
-        counterparty: contract.counterparty,
-        typeLabel: CONTRACT_TYPE_LABELS[contract.type],
-        versionNumber: version.number,
-        checksum: version.checksum,
-        body: version.body,
-        generatedAt: DateTime.utc(),
-        steps: steps.map((step) => ({
-          name: step.stepName,
-          role: step.approverRole,
-          decider: step.decider ? (step.decider.fullName ?? step.decider.email) : null,
-          decidedAt: step.decidedAt,
-          comment: step.comment,
-        })),
-      })
-
-      const key = `organizations/${organizationId}/contracts/${contract.id}/v${version.number}-${version.checksum.slice(0, 12)}.pdf`
-      const disk = drive.use()
-      await disk.put(key, body, { contentType: 'application/pdf' })
-      try {
-        const document = await ContractDocument.create(
-          {
-            contractId: contract.id,
-            contractVersionId: version.id,
-            storageKey: key,
-            contentType: 'application/pdf',
-            sizeBytes: body.length,
-            checksum: createHash('sha256').update(body).digest('hex'),
-            generatedBy: actorId,
-          },
-          { client: trx }
-        )
-        await recordAudit(trx, {
-          organizationId,
-          actorId,
-          action: 'document.generated',
-          subject: { type: 'contract', id: contract.id },
-          metadata: { version: version.number, sizeBytes: body.length },
-        })
-        return document
-      } catch (error) {
-        await disk.delete(key).catch(() => {})
-        throw error
-      }
+      return this.generateLocked(trx, contract, actorId)
     })
+  }
+
+  /** Même chose pour un appelant qui tient déjà le verrou du contrat (une demande de signature). */
+  async generateLocked(trx: TransactionClientContract, contract: Contract, actorId: number) {
+    const organizationId = contract.organizationId
+    if (contract.status !== 'approved') {
+      throw new RuleViolation(
+        'contract_not_approved',
+        "Le PDF n'est produit que pour un contrat approuvé."
+      )
+    }
+    const version = await latestVersion(trx, contract.id)
+    const existing = await ContractDocument.query({ client: trx })
+      .where('contract_version_id', version.id)
+      .first()
+    if (existing) return existing
+
+    const steps = await Approval.query({ client: trx })
+      .where('contract_id', contract.id)
+      .where('contract_version_id', version.id)
+      .where('round', contract.reviewRound)
+      .preload('decider')
+      .orderBy('position')
+    const body = await buildPdf({
+      title: contract.title,
+      counterparty: contract.counterparty,
+      typeLabel: CONTRACT_TYPE_LABELS[contract.type],
+      versionNumber: version.number,
+      checksum: version.checksum,
+      body: version.body,
+      generatedAt: DateTime.utc(),
+      steps: steps.map((step) => ({
+        name: step.stepName,
+        role: step.approverRole,
+        decider: step.decider ? (step.decider.fullName ?? step.decider.email) : null,
+        decidedAt: step.decidedAt,
+        comment: step.comment,
+      })),
+    })
+
+    const key = `organizations/${organizationId}/contracts/${contract.id}/v${version.number}-${version.checksum.slice(0, 12)}.pdf`
+    const disk = drive.use()
+    await disk.put(key, body, { contentType: 'application/pdf' })
+    try {
+      const document = await ContractDocument.create(
+        {
+          contractId: contract.id,
+          contractVersionId: version.id,
+          storageKey: key,
+          contentType: 'application/pdf',
+          sizeBytes: body.length,
+          checksum: createHash('sha256').update(body).digest('hex'),
+          generatedBy: actorId,
+        },
+        { client: trx }
+      )
+      await recordAudit(trx, {
+        organizationId,
+        actorId,
+        action: 'document.generated',
+        subject: { type: 'contract', id: contract.id },
+        metadata: { version: version.number, sizeBytes: body.length },
+      })
+      return document
+    } catch (error) {
+      await disk.delete(key).catch(() => {})
+      throw error
+    }
   }
 
   /**

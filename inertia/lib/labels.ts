@@ -23,6 +23,8 @@ export const STATUS_LABELS: Record<string, string> = {
   in_review: 'En validation',
   approved: 'Approuvé',
   rejected: 'Rejeté',
+  signing: 'En signature',
+  signed: 'Signé',
 }
 
 export const STEP_LABELS: Record<string, string> = {
@@ -30,6 +32,9 @@ export const STEP_LABELS: Record<string, string> = {
   approved: 'Validée',
   rejected: 'Rejetée',
   skipped: 'Annulée',
+  completed: 'Signée par tous',
+  declined: 'Refusée',
+  cancelled: 'Annulée',
 }
 
 const AUDIT_LABELS: Record<string, string> = {
@@ -41,6 +46,11 @@ const AUDIT_LABELS: Record<string, string> = {
   'contract.approved': 'Contrat approuvé',
   'comment.added': 'Commentaire ajouté',
   'document.generated': 'PDF archivé',
+  'signature.requested': 'Envoyé à la signature',
+  'signature.signed': 'Signature recueillie',
+  'signature.declined': 'Signature refusée',
+  'signature.cancelled': 'Signature annulée',
+  'contract.signed': 'Contrat signé',
 }
 
 export function auditLabel(action: string, metadata: Record<string, unknown>) {
@@ -49,6 +59,7 @@ export function auditLabel(action: string, metadata: Record<string, unknown>) {
     metadata.step && `« ${metadata.step} »`,
     metadata.version && `version ${metadata.version}`,
     metadata.round && `tour ${metadata.round}`,
+    metadata.signer && String(metadata.signer),
   ].filter(Boolean)
   return details.length ? `${label} (${details.join(', ')})` : label
 }

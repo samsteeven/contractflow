@@ -128,6 +128,18 @@ export default class ContractService {
           'Ce contrat est en cours de validation : il ne peut pas être modifié.'
         )
       }
+      if (contract.status === 'signing') {
+        throw new RuleViolation(
+          'contract_in_signature',
+          'Ce contrat est en cours de signature : annulez la demande avant de le modifier.'
+        )
+      }
+      if (contract.status === 'signed') {
+        throw new RuleViolation(
+          'contract_signed',
+          'Ce contrat est signé : il ne peut plus changer.'
+        )
+      }
       const previous = await latestVersion(trx, contract.id)
       if (previous.checksum === checksumOf(input.body)) {
         throw new RuleViolation('no_change', 'Le texte est identique à la dernière version.')

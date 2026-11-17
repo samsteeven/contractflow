@@ -20,11 +20,25 @@ type Props = InertiaProps<{
   audit: Data.AuditLog[]
   comments: Data.Comment[]
   document: { versionId: number; sizeBytes: number } | null
+  signature: {
+    status: string
+    signers: {
+      id: number
+      name: string
+      email: string
+      status: string
+      signedAt: string | null
+      signUrl: string | null
+    }[]
+    hasProof: boolean
+  } | null
   workflows: { id: number; name: string; steps: string[] }[]
   can: {
     revise: boolean
     submit: boolean
     comment: boolean
+    requestSignature: boolean
+    cancelSignature: boolean
     generateDocument: boolean
     downloadDocument: boolean
     decideApprovalId: number | null
@@ -44,6 +58,7 @@ export default function ContractsShow(props: Props) {
     audit,
     comments,
     document,
+    signature,
     workflows,
     can,
   } = props
@@ -215,6 +230,113 @@ export default function ContractsShow(props: Props) {
                     >
                       Archiver le PDF de la version {latest.number}
                     </button>
+                  )}
+                </Form>
+              )}
+            </Section>
+          )}
+
+          {(can.requestSignature || signature) && (
+            <Section title="Signature">
+              {signature && (
+                <>
+                  <p>
+                    <StatusBadge status={signature.status} step />
+                  </p>
+                  <ul className="rows" data-testid="signers">
+                    {signature.signers.map((signer) => (
+                      <li key={signer.id}>
+                        <strong>{signer.name}</strong>{' '}
+                        <span className="muted">
+                          {signer.email} ·{' '}
+                          {signer.status === 'signed'
+                            ? `signé ${formatDate(signer.signedAt)}`
+                            : signer.status === 'declined'
+                              ? 'a refusé'
+                              : 'en attente'}
+                        </span>
+                        {signer.signUrl && (
+                          <>
+                            {' '}
+                            <a href={signer.signUrl} className="il">
+                              Ouvrir la page de signature (bac à sable)
+                            </a>
+                          </>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                  {signature.hasProof && (
+                    <p>
+                      <a
+                        href={`/contracts/${contract.id}/signature/proof`}
+                        className="btn btn--secondary btn--sm"
+                      >
+                        Télécharger la preuve de signature
+                      </a>
+                    </p>
+                  )}
+                </>
+              )}
+              {can.cancelSignature && (
+                <Form route="signatures.cancel" routeParams={{ id: contract.id }}>
+                  {({ processing }) => (
+                    <button
+                      type="submit"
+                      className="btn btn--secondary btn--sm"
+                      disabled={processing}
+                    >
+                      Annuler la demande de signature
+                    </button>
+                  )}
+                </Form>
+              )}
+              {can.requestSignature && (
+                <Form route="signatures.store" routeParams={{ id: contract.id }}>
+                  {({ errors, processing }) => (
+                    <div className="form form--tight">
+                      <p className="muted">
+                        Le PDF de la version {latest.number} est envoyé. Le contrat ne pourra plus
+                        être modifié pendant la signature.
+                      </p>
+                      {[0, 1].map((index) => (
+                        <div key={index} className="form__row">
+                          <Field
+                            id={`signer-name-${index}`}
+                            label={`Signataire ${index + 1}${index === 0 ? '' : ' (facultatif)'}`}
+                            error={errors[`signers.${index}.name`]}
+                          >
+                            <input
+                              id={`signer-name-${index}`}
+                              name={`signers[${index}][name]`}
+                              className="field__input"
+                              placeholder="Nom"
+                              required={index === 0}
+                            />
+                          </Field>
+                          <Field
+                            id={`signer-email-${index}`}
+                            label="E-mail"
+                            error={errors[`signers.${index}.email`]}
+                          >
+                            <input
+                              id={`signer-email-${index}`}
+                              name={`signers[${index}][email]`}
+                              type="email"
+                              className="field__input"
+                              required={index === 0}
+                            />
+                          </Field>
+                        </div>
+                      ))}
+                      <button
+                        type="submit"
+                        className="btn btn--primary btn--block"
+                        disabled={processing}
+                      >
+                        Envoyer à la signature
+                      </button>
+                    </div>
                   )}
                 </Form>
               )}

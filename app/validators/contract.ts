@@ -55,6 +55,18 @@ export const createTemplateValidator = vine.create({
   body: body(),
 })
 
+export const requestSignatureValidator = vine.create({
+  signers: vine
+    .array(
+      vine.object({
+        name: vine.string().trim().minLength(2).maxLength(200),
+        email: vine.string().trim().email().maxLength(254),
+      })
+    )
+    .minLength(1)
+    .maxLength(5),
+})
+
 export const commentValidator = vine.create({
   body: vine.string().trim().minLength(1).maxLength(2000),
 })

@@ -43,4 +43,8 @@ export default await Env.create(new URL('../', import.meta.url), {
   AWS_REGION: Env.schema.string.optional(),
   S3_BUCKET: Env.schema.string.optional(),
   S3_ENDPOINT: Env.schema.string.optional(),
+
+  // Signature électronique : prestataire et secret partagé des webhooks entrants
+  SIGNATURE_PROVIDER: Env.schema.enum(['sandbox'] as const),
+  SIGNATURE_WEBHOOK_SECRET: Env.schema.string(),
 })

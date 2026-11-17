@@ -44,6 +44,24 @@ const routes = {
     tokens: [[0,"login"]],
     types: placeholder as Registry['session.store']['types'],
   },
+  'webhooks.signature': {
+    methods: ["POST"],
+    pattern: '/webhooks/signature',
+    tokens: [[0,"webhooks"],[0,"signature"]],
+    types: placeholder as Registry['webhooks.signature']['types'],
+  },
+  'sandbox.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/sandbox/sign/:signerId',
+    tokens: [[0,"sandbox"],[0,"sign"],[1,"signerId"]],
+    types: placeholder as Registry['sandbox.show']['types'],
+  },
+  'sandbox.decide': {
+    methods: ["POST"],
+    pattern: '/sandbox/sign/:signerId',
+    tokens: [[0,"sandbox"],[0,"sign"],[1,"signerId"]],
+    types: placeholder as Registry['sandbox.decide']['types'],
+  },
   'session.destroy': {
     methods: ["POST"],
     pattern: '/logout',
@@ -115,6 +133,24 @@ const routes = {
     pattern: '/contracts/:id/document',
     tokens: [[0,"contracts"],[1,"id"],[0,"document"]],
     types: placeholder as Registry['documents.show']['types'],
+  },
+  'signatures.store': {
+    methods: ["POST"],
+    pattern: '/contracts/:id/signature',
+    tokens: [[0,"contracts"],[1,"id"],[0,"signature"]],
+    types: placeholder as Registry['signatures.store']['types'],
+  },
+  'signatures.cancel': {
+    methods: ["POST"],
+    pattern: '/contracts/:id/signature/cancel',
+    tokens: [[0,"contracts"],[1,"id"],[0,"signature"],[0,"cancel"]],
+    types: placeholder as Registry['signatures.cancel']['types'],
+  },
+  'signatures.proof': {
+    methods: ["GET","HEAD"],
+    pattern: '/contracts/:id/signature/proof',
+    tokens: [[0,"contracts"],[1,"id"],[0,"signature"],[0,"proof"]],
+    types: placeholder as Registry['signatures.proof']['types'],
   },
   'templates.index': {
     methods: ["GET","HEAD"],

@@ -273,6 +273,120 @@ export class OrganizationSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
+export class SignatureEventSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'eventId',
+    'id',
+    'outcome',
+    'payload',
+    'signatureRequestId',
+    'type',
+  ] as const
+  $columns = SignatureEventSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare eventId: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare outcome: string
+  @column()
+  declare payload: any
+  @column()
+  declare signatureRequestId: number | null
+  @column()
+  declare type: string
+}
+
+export class SignatureProofSchema extends BaseModel {
+  static $columns = ['checksum', 'createdAt', 'id', 'signatureRequestId', 'storageKey'] as const
+  $columns = SignatureProofSchema.$columns
+  @column()
+  declare checksum: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare signatureRequestId: number
+  @column()
+  declare storageKey: string
+}
+
+export class SignatureRequestSchema extends BaseModel {
+  static $columns = [
+    'completedAt',
+    'contractId',
+    'contractVersionId',
+    'createdAt',
+    'documentId',
+    'externalId',
+    'id',
+    'provider',
+    'requestedBy',
+    'status',
+    'updatedAt',
+  ] as const
+  $columns = SignatureRequestSchema.$columns
+  @column.dateTime()
+  declare completedAt: DateTime | null
+  @column()
+  declare contractId: number
+  @column()
+  declare contractVersionId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare documentId: number
+  @column()
+  declare externalId: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare provider: string
+  @column()
+  declare requestedBy: number
+  @column()
+  declare status: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class SignatureSignerSchema extends BaseModel {
+  static $columns = [
+    'createdAt',
+    'email',
+    'externalId',
+    'id',
+    'name',
+    'signatureRequestId',
+    'signedAt',
+    'status',
+    'updatedAt',
+  ] as const
+  $columns = SignatureSignerSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare email: string
+  @column()
+  declare externalId: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare name: string
+  @column()
+  declare signatureRequestId: number
+  @column.dateTime()
+  declare signedAt: DateTime | null
+  @column()
+  declare status: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class UserSchema extends BaseModel {
   static $columns = ['createdAt', 'email', 'fullName', 'id', 'password', 'updatedAt'] as const
   $columns = UserSchema.$columns

@@ -1,4 +1,5 @@
 import Approval from '#models/approval'
+import SignatureRequest from '#models/signature_request'
 import Membership from '#models/membership'
 import User from '#models/user'
 import ApprovalService from '#services/approval_service'
@@ -7,6 +8,9 @@ import ContractService from '#services/contract_service'
 import DocumentService from '#services/document_service'
 import OrganizationService from '#services/organization_service'
 import type { Role } from '#services/vocabulary'
+import { SandboxSignatureProvider } from '#services/signature_provider'
+import SignatureService from '#services/signature_service'
+import SignatureWebhookService from '#services/signature_webhook_service'
 import TemplateService from '#services/template_service'
 import WorkflowService from '#services/workflow_service'
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
@@ -163,6 +167,23 @@ export default class extends BaseSeeder {
       'Helio Labs demande de ramener la durée à trois ans.'
     )
     await new DocumentService().generate(org, maintenance.id, people.member.id)
+
+    // Signature en cours : deux signataires, Alice a signé, Bob n'a pas encore répondu.
+    const provider = new SandboxSignatureProvider()
+    await new SignatureService(provider).request(org, maintenance.id, people.manager.id, [
+      { name: 'Alice Martin', email: 'alice.martin@nordwind.test' },
+      { name: 'Bob Durand', email: 'bob.durand@atelier-nova.test' },
+    ])
+    const request = await SignatureRequest.query()
+      .where('contract_id', maintenance.id)
+      .preload('signers')
+      .firstOrFail()
+    const { rawBody, header } = provider.buildEvent({
+      type: 'signer.signed',
+      requestId: request.externalId,
+      signerId: request.signers[0].externalId,
+    })
+    await new SignatureWebhookService().handle(rawBody, header)
 
     // Modèles : deux textes à variables, dont l'un sert à créer un brouillon.
     const templates = new TemplateService()

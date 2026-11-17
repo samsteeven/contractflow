@@ -11,7 +11,10 @@ export const controllers = {
   Documents: () => import('#controllers/documents_controller'),
   Members: () => import('#controllers/members_controller'),
   NewAccount: () => import('#controllers/new_account_controller'),
+  Sandbox: () => import('#controllers/sandbox_controller'),
   Session: () => import('#controllers/session_controller'),
+  Signatures: () => import('#controllers/signatures_controller'),
   Templates: () => import('#controllers/templates_controller'),
+  Webhooks: () => import('#controllers/webhooks_controller'),
   Workflows: () => import('#controllers/workflows_controller'),
 }

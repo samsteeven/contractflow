@@ -10,6 +10,9 @@ export type ScannedRoutes = {
     'new_account.store': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
     'session.store': { paramsTuple?: []; params?: {} }
+    'webhooks.signature': { paramsTuple?: []; params?: {} }
+    'sandbox.show': { paramsTuple: [ParamValue]; params: {'signerId': ParamValue} }
+    'sandbox.decide': { paramsTuple: [ParamValue]; params: {'signerId': ParamValue} }
     'session.destroy': { paramsTuple?: []; params?: {} }
     'dashboard': { paramsTuple?: []; params?: {} }
     'contracts.index': { paramsTuple?: []; params?: {} }
@@ -22,6 +25,9 @@ export type ScannedRoutes = {
     'comments.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'documents.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'documents.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'signatures.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'signatures.cancel': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'signatures.proof': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'templates.index': { paramsTuple?: []; params?: {} }
     'templates.create': { paramsTuple?: []; params?: {} }
     'templates.store': { paramsTuple?: []; params?: {} }
@@ -35,11 +41,13 @@ export type ScannedRoutes = {
     'home': { paramsTuple?: []; params?: {} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
+    'sandbox.show': { paramsTuple: [ParamValue]; params: {'signerId': ParamValue} }
     'dashboard': { paramsTuple?: []; params?: {} }
     'contracts.index': { paramsTuple?: []; params?: {} }
     'contracts.create': { paramsTuple?: []; params?: {} }
     'contracts.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'documents.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'signatures.proof': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'templates.index': { paramsTuple?: []; params?: {} }
     'templates.create': { paramsTuple?: []; params?: {} }
     'workflows.index': { paramsTuple?: []; params?: {} }
@@ -50,11 +58,13 @@ export type ScannedRoutes = {
     'home': { paramsTuple?: []; params?: {} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
+    'sandbox.show': { paramsTuple: [ParamValue]; params: {'signerId': ParamValue} }
     'dashboard': { paramsTuple?: []; params?: {} }
     'contracts.index': { paramsTuple?: []; params?: {} }
     'contracts.create': { paramsTuple?: []; params?: {} }
     'contracts.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'documents.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'signatures.proof': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'templates.index': { paramsTuple?: []; params?: {} }
     'templates.create': { paramsTuple?: []; params?: {} }
     'workflows.index': { paramsTuple?: []; params?: {} }
@@ -63,6 +73,8 @@ export type ScannedRoutes = {
   POST: {
     'new_account.store': { paramsTuple?: []; params?: {} }
     'session.store': { paramsTuple?: []; params?: {} }
+    'webhooks.signature': { paramsTuple?: []; params?: {} }
+    'sandbox.decide': { paramsTuple: [ParamValue]; params: {'signerId': ParamValue} }
     'session.destroy': { paramsTuple?: []; params?: {} }
     'contracts.store': { paramsTuple?: []; params?: {} }
     'contracts.revise': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -70,6 +82,8 @@ export type ScannedRoutes = {
     'approvals.decide': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'approvalId': ParamValue} }
     'comments.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'documents.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'signatures.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'signatures.cancel': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'templates.store': { paramsTuple?: []; params?: {} }
     'workflows.store': { paramsTuple?: []; params?: {} }
     'members.store': { paramsTuple?: []; params?: {} }

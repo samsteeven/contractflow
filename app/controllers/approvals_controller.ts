@@ -32,6 +32,8 @@ export default class ApprovalsController {
       rejected: 'Contrat rejeté : il repart chez son rédacteur.',
       in_review: "Étape validée : le contrat passe à l'étape suivante.",
       draft: 'Décision enregistrée.',
+      signing: 'Décision enregistrée.',
+      signed: 'Décision enregistrée.',
     }
     session.flash('success', messages[contract.status])
     return response.redirect().toRoute('contracts.show', { id: params.id })

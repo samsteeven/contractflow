@@ -6,7 +6,8 @@ export default class AuditLogTransformer extends BaseTransformer<AuditLog> {
     const actor = this.resource.actor
     return {
       ...this.pick(this.resource, ['id', 'action', 'metadata', 'createdAt']),
-      actor: actor ? (actor.fullName ?? actor.email) : null,
+      // Sans acteur : l'événement vient du prestataire de signature.
+      actor: actor ? (actor.fullName ?? actor.email) : 'Prestataire de signature',
     }
   }
 }

@@ -14,10 +14,16 @@ export type AuditAction =
   | 'template.created'
   | 'comment.added'
   | 'document.generated'
+  | 'signature.requested'
+  | 'signature.signed'
+  | 'signature.declined'
+  | 'signature.cancelled'
+  | 'contract.signed'
 
 type Entry = {
   organizationId: number
-  actorId: number
+  /** Absent quand l'événement vient du prestataire de signature. */
+  actorId: number | null
   action: AuditAction
   subject: {
     type: 'organization' | 'membership' | 'workflow' | 'contract' | 'template'
