@@ -11,12 +11,18 @@ export type AuditAction =
   | 'approval.approved'
   | 'approval.rejected'
   | 'contract.approved'
+  | 'template.created'
+  | 'comment.added'
+  | 'document.generated'
 
 type Entry = {
   organizationId: number
   actorId: number
   action: AuditAction
-  subject: { type: 'organization' | 'membership' | 'workflow' | 'contract'; id: number }
+  subject: {
+    type: 'organization' | 'membership' | 'workflow' | 'contract' | 'template'
+    id: number
+  }
   metadata?: Record<string, string | number | boolean | null>
 }
 

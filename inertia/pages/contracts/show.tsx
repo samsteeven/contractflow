@@ -18,15 +18,35 @@ type Props = InertiaProps<{
   diff: DiffLine[] | null
   approvals: Data.Approval[]
   audit: Data.AuditLog[]
+  comments: Data.Comment[]
+  document: { versionId: number; sizeBytes: number } | null
   workflows: { id: number; name: string; steps: string[] }[]
-  can: { revise: boolean; submit: boolean; decideApprovalId: number | null }
+  can: {
+    revise: boolean
+    submit: boolean
+    comment: boolean
+    generateDocument: boolean
+    downloadDocument: boolean
+    decideApprovalId: number | null
+  }
 }>
 
 const DIFF_MARK = { same: ' ', added: '+', removed: '−' }
 const DIFF_LABEL = { same: '', added: 'Ligne ajoutée : ', removed: 'Ligne retirée : ' }
 
 export default function ContractsShow(props: Props) {
-  const { contract, versions, selectedVersion, diff, approvals, audit, workflows, can } = props
+  const {
+    contract,
+    versions,
+    selectedVersion,
+    diff,
+    approvals,
+    audit,
+    comments,
+    document,
+    workflows,
+    can,
+  } = props
   const latest = versions[0]
   const selected = versions.find((version) => version.number === selectedVersion) ?? latest
   const rounds = [...new Set(approvals.map((approval) => approval.round))].sort((a, b) => b - a)
@@ -173,6 +193,34 @@ export default function ContractsShow(props: Props) {
             </Section>
           )}
 
+          {(can.generateDocument || can.downloadDocument) && (
+            <Section title="Document PDF">
+              {can.downloadDocument && document && (
+                <p>
+                  <a
+                    href={`/contracts/${contract.id}/document`}
+                    className="btn btn--secondary btn--sm"
+                  >
+                    Télécharger le PDF ({Math.max(1, Math.round(document.sizeBytes / 1024))} Ko)
+                  </a>
+                </p>
+              )}
+              {can.generateDocument && (
+                <Form route="documents.store" routeParams={{ id: contract.id }}>
+                  {({ processing }) => (
+                    <button
+                      type="submit"
+                      className="btn btn--primary btn--block"
+                      disabled={processing}
+                    >
+                      Archiver le PDF de la version {latest.number}
+                    </button>
+                  )}
+                </Form>
+              )}
+            </Section>
+          )}
+
           <Section title="Validation">
             {rounds.length === 0 && <p className="muted">Ce contrat n’a pas encore été soumis.</p>}
             {rounds.map((round) => (
@@ -253,6 +301,47 @@ export default function ContractsShow(props: Props) {
                 </ol>
               </div>
             ))}
+          </Section>
+
+          <Section title="Commentaires">
+            {can.comment && (
+              <Form route="comments.store" routeParams={{ id: contract.id }} resetOnSuccess>
+                {({ errors, processing }) => (
+                  <div className="form form--tight">
+                    <Field id="comment-body" label="Votre commentaire" error={errors.body}>
+                      <textarea
+                        id="comment-body"
+                        name="body"
+                        className="field__input field__input--text"
+                        rows={3}
+                        required
+                      />
+                    </Field>
+                    <button
+                      type="submit"
+                      className="btn btn--secondary btn--sm"
+                      disabled={processing}
+                    >
+                      Commenter
+                    </button>
+                  </div>
+                )}
+              </Form>
+            )}
+            {comments.length === 0 ? (
+              <p className="muted">Aucun commentaire.</p>
+            ) : (
+              <ol className="journal" data-testid="comments">
+                {comments.map((comment) => (
+                  <li key={comment.id}>
+                    <span>{comment.body}</span>
+                    <span className="muted">
+                      {comment.author}, {formatDate(comment.createdAt)}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            )}
           </Section>
 
           <Section title="Journal">

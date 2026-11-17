@@ -2,9 +2,12 @@ import Approval from '#models/approval'
 import Membership from '#models/membership'
 import User from '#models/user'
 import ApprovalService from '#services/approval_service'
+import CommentService from '#services/comment_service'
 import ContractService from '#services/contract_service'
+import DocumentService from '#services/document_service'
 import OrganizationService from '#services/organization_service'
 import type { Role } from '#services/vocabulary'
+import TemplateService from '#services/template_service'
 import WorkflowService from '#services/workflow_service'
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import db from '@adonisjs/lucid/services/db'
@@ -144,6 +147,58 @@ export default class extends BaseSeeder {
       body: NDA,
     })
     await contracts.submit(org, nda.id, people.member.id, standard.id)
+
+    // Commentaires et PDF archivé du contrat approuvé.
+    const comments = new CommentService()
+    await comments.add(
+      org,
+      supply.id,
+      people.legal.id,
+      'Garantie de 24 mois : conforme à la politique achats.'
+    )
+    await comments.add(
+      org,
+      nda.id,
+      people.member.id,
+      'Helio Labs demande de ramener la durée à trois ans.'
+    )
+    await new DocumentService().generate(org, maintenance.id, people.member.id)
+
+    // Modèles : deux textes à variables, dont l'un sert à créer un brouillon.
+    const templates = new TemplateService()
+    const service = await templates.create(org, people.admin.id, {
+      name: 'Prestation de services standard',
+      type: 'service',
+      body: [
+        'Article 1 - Objet',
+        '{{prestataire}} réalise pour {{client}} la mission suivante : {{mission}}.',
+        'Article 2 - Prix',
+        'Le prix est de {{montant}} euros hors taxes.',
+        'Article 3 - Durée',
+        'Le contrat débute le {{date_debut}} pour une durée de {{duree}}.',
+      ].join('\n'),
+    })
+    await templates.create(org, people.admin.id, {
+      name: 'Confidentialité réciproque',
+      type: 'nda',
+      body: [
+        'Article 1 - Objet',
+        '{{partie_a}} et {{partie_b}} gardent confidentielles les informations échangées pendant {{duree}}.',
+      ].join('\n'),
+    })
+    await contracts.createFromTemplate(org, people.member.id, {
+      templateId: service.id,
+      title: 'Refonte du site vitrine',
+      counterparty: 'Studio Pixel',
+      values: {
+        prestataire: 'Studio Pixel',
+        client: 'Atelier Nova',
+        mission: 'la refonte du site vitrine',
+        montant: '18 500',
+        date_debut: '1er février',
+        duree: 'six mois',
+      },
+    })
 
     // Brouillon.
     await contracts.create(org, people.member.id, {

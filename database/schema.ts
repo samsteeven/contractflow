@@ -82,6 +82,93 @@ export class AuditLogSchema extends BaseModel {
   declare subjectType: string
 }
 
+export class CommentSchema extends BaseModel {
+  static $columns = [
+    'authorId',
+    'body',
+    'contractId',
+    'contractVersionId',
+    'createdAt',
+    'id',
+  ] as const
+  $columns = CommentSchema.$columns
+  @column()
+  declare authorId: number
+  @column()
+  declare body: string
+  @column()
+  declare contractId: number
+  @column()
+  declare contractVersionId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+}
+
+export class ContractDocumentSchema extends BaseModel {
+  static $columns = [
+    'checksum',
+    'contentType',
+    'contractId',
+    'contractVersionId',
+    'createdAt',
+    'generatedBy',
+    'id',
+    'sizeBytes',
+    'storageKey',
+  ] as const
+  $columns = ContractDocumentSchema.$columns
+  @column()
+  declare checksum: string
+  @column()
+  declare contentType: string
+  @column()
+  declare contractId: number
+  @column()
+  declare contractVersionId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare generatedBy: number
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare sizeBytes: number
+  @column()
+  declare storageKey: string
+}
+
+export class ContractTemplateSchema extends BaseModel {
+  static $columns = [
+    'body',
+    'createdAt',
+    'createdBy',
+    'id',
+    'name',
+    'organizationId',
+    'type',
+    'updatedAt',
+  ] as const
+  $columns = ContractTemplateSchema.$columns
+  @column()
+  declare body: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare createdBy: number
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare name: string
+  @column()
+  declare organizationId: number
+  @column()
+  declare type: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class ContractVersionSchema extends BaseModel {
   static $columns = [
     'authorId',
@@ -121,6 +208,7 @@ export class ContractSchema extends BaseModel {
     'organizationId',
     'reviewRound',
     'status',
+    'templateId',
     'title',
     'type',
     'updatedAt',
@@ -141,6 +229,8 @@ export class ContractSchema extends BaseModel {
   declare reviewRound: number
   @column()
   declare status: string
+  @column()
+  declare templateId: number | null
   @column()
   declare title: string
   @column()

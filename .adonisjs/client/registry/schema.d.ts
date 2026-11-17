@@ -8,6 +8,19 @@ import type { routes } from './index.ts'
 export type ParamValue = string | number | bigint | boolean
 
 export interface Registry {
+  'drive.fs.serve': {
+    methods: ["GET","HEAD"]
+    pattern: '/storage/*'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { '*': ParamValue[] }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+      rawResponse: ExtractRawResponse<unknown>
+    }
+  }
   'home': {
     methods: ["GET","HEAD"]
     pattern: '/'
@@ -129,10 +142,10 @@ export interface Registry {
     methods: ["POST"]
     pattern: '/contracts'
     types: {
-      body: ExtractBody<InferInput<(typeof import('#validators/contract').createContractValidator)>>
+      body: ExtractBody<InferInput<(typeof import('#validators/contract').createFromTemplateValidator)>|InferInput<(typeof import('#validators/contract').createContractValidator)>>
       paramsTuple: []
       params: {}
-      query: ExtractQuery<InferInput<(typeof import('#validators/contract').createContractValidator)>>
+      query: ExtractQuery<InferInput<(typeof import('#validators/contract').createFromTemplateValidator)>|InferInput<(typeof import('#validators/contract').createContractValidator)>>
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/contracts_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/contracts_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/contracts_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
@@ -188,6 +201,84 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/approvals_controller').default['decide']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/approvals_controller').default['decide']>>> | { status: 422; response: { errors: SimpleError[] } }
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/approvals_controller').default['decide']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'comments.store': {
+    methods: ["POST"]
+    pattern: '/contracts/:id/comments'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/contract').commentValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/contract').commentValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/comments_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/comments_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/comments_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'documents.store': {
+    methods: ["POST"]
+    pattern: '/contracts/:id/document'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/documents_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/documents_controller').default['store']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/documents_controller').default['store']>>>
+    }
+  }
+  'documents.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/contracts/:id/document'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/documents_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/documents_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/documents_controller').default['show']>>>
+    }
+  }
+  'templates.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/templates'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/templates_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/templates_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/templates_controller').default['index']>>>
+    }
+  }
+  'templates.create': {
+    methods: ["GET","HEAD"]
+    pattern: '/templates/new'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/templates_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/templates_controller').default['create']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/templates_controller').default['create']>>>
+    }
+  }
+  'templates.store': {
+    methods: ["POST"]
+    pattern: '/templates'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/contract').createTemplateValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/contract').createTemplateValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/templates_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/templates_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/templates_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'workflows.index': {

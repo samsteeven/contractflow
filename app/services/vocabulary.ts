@@ -30,3 +30,11 @@ export type ContractStatus = (typeof CONTRACT_STATUSES)[number]
 
 export const APPROVAL_STATUSES = ['pending', 'approved', 'rejected', 'skipped'] as const
 export type ApprovalStatus = (typeof APPROVAL_STATUSES)[number]
+
+export const CONTRACT_TYPE_LABELS: Record<ContractType, string> = {
+  service: 'Prestation de services',
+  supplier: 'Fournisseur',
+  subcontracting: 'Sous-traitance',
+  nda: 'Accord de confidentialité',
+  partnership: 'Partenariat',
+}

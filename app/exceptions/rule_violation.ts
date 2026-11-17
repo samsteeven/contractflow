@@ -14,6 +14,10 @@ export type RuleViolationReason =
   | 'unknown_user'
   | 'already_member'
   | 'role_not_grantable'
+  | 'missing_variable'
+  | 'invalid_template'
+  | 'template_name_taken'
+  | 'contract_not_approved'
 
 /**
  * Une règle métier refuse l'action. `reason` identifie la règle (les tests s'appuient dessus),

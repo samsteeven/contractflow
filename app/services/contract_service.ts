@@ -2,9 +2,11 @@ import { createHash } from 'node:crypto'
 import RuleViolation from '#exceptions/rule_violation'
 import Approval from '#models/approval'
 import Contract from '#models/contract'
+import ContractTemplate from '#models/contract_template'
 import ContractVersion from '#models/contract_version'
 import Workflow from '#models/workflow'
 import { recordAudit } from '#services/audit'
+import { renderTemplate } from '#services/template_service'
 import type { ContractType } from '#services/vocabulary'
 import db from '@adonisjs/lucid/services/db'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
@@ -42,7 +44,13 @@ export default class ContractService {
   async create(
     organizationId: number,
     actorId: number,
-    input: { title: string; counterparty: string; type: ContractType; body: string }
+    input: {
+      title: string
+      counterparty: string
+      type: ContractType
+      body: string
+      templateId?: number | null
+    }
   ) {
     return db.transaction(async (trx) => {
       const contract = await Contract.create(
@@ -54,6 +62,7 @@ export default class ContractService {
           status: 'draft',
           reviewRound: 0,
           createdBy: actorId,
+          templateId: input.templateId ?? null,
         },
         { client: trx }
       )
@@ -63,9 +72,40 @@ export default class ContractService {
         actorId,
         action: 'contract.created',
         subject: { type: 'contract', id: contract.id },
-        metadata: { title: input.title, type: input.type },
+        metadata: {
+          title: input.title,
+          type: input.type,
+          templateId: input.templateId ?? null,
+        },
       })
       return contract
+    })
+  }
+
+  /**
+   * Crée un contrat depuis un modèle de l'organisation. Le texte est rempli une fois pour
+   * toutes : le contrat ne suit pas les évolutions ultérieures du modèle.
+   */
+  async createFromTemplate(
+    organizationId: number,
+    actorId: number,
+    input: {
+      templateId: number
+      title: string
+      counterparty: string
+      values: Record<string, string>
+    }
+  ) {
+    const template = await ContractTemplate.query()
+      .where('id', input.templateId)
+      .where('organization_id', organizationId)
+      .firstOrFail()
+    return this.create(organizationId, actorId, {
+      title: input.title,
+      counterparty: input.counterparty,
+      type: template.type,
+      body: renderTemplate(template.body, input.values),
+      templateId: template.id,
     })
   }
 

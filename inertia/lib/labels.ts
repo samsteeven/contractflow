@@ -39,6 +39,8 @@ const AUDIT_LABELS: Record<string, string> = {
   'approval.approved': 'Étape validée',
   'approval.rejected': 'Étape rejetée',
   'contract.approved': 'Contrat approuvé',
+  'comment.added': 'Commentaire ajouté',
+  'document.generated': 'PDF archivé',
 }
 
 export function auditLabel(action: string, metadata: Record<string, unknown>) {

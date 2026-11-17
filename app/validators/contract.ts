@@ -41,3 +41,20 @@ export const addMemberValidator = vine.create({
   email: vine.string().email().maxLength(254),
   role: vine.enum(ROLES),
 })
+
+export const createFromTemplateValidator = vine.create({
+  templateId: vine.number().positive().withoutDecimals(),
+  title: vine.string().trim().minLength(3).maxLength(200),
+  counterparty: vine.string().trim().minLength(2).maxLength(200),
+  values: vine.record(vine.string().maxLength(2000)).optional(),
+})
+
+export const createTemplateValidator = vine.create({
+  name: vine.string().trim().minLength(3).maxLength(200),
+  type: vine.enum(CONTRACT_TYPES),
+  body: body(),
+})
+
+export const commentValidator = vine.create({
+  body: vine.string().trim().minLength(1).maxLength(2000),
+})

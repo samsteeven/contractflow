@@ -6,11 +6,12 @@ import FlashToasts from '~/components/flash_toasts'
 import ThemeToggle from '~/components/theme_toggle'
 import NavLink, { type NavItem } from '~/components/nav_link'
 import { ROLE_LABELS } from '~/lib/labels'
-import { FileText, GitBranch, House, LogOut, Users } from 'lucide-react'
+import { FileStack, FileText, GitBranch, House, LogOut, Users } from 'lucide-react'
 
 const nav: NavItem[] = [
   { label: 'Tableau de bord', route: 'dashboard', icon: House },
   { label: 'Contrats', route: 'contracts.index', icon: FileText },
+  { label: 'Modèles', route: 'templates.index', icon: FileStack },
   { label: 'Circuits', route: 'workflows.index', icon: GitBranch },
   { label: 'Équipe', route: 'members.index', icon: Users },
 ]

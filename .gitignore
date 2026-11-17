@@ -4,6 +4,9 @@ build
 tmp/*
 !tmp/.gitkeep
 
+# Documents du disque local (DRIVE_DISK=fs)
+storage
+
 # Secrets
 .env
 .env.local

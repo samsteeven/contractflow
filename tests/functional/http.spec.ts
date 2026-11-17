@@ -87,7 +87,14 @@ test.group('Parcours HTTP', (group) => {
 
     const draft = await show(member)
     draft.assertInertiaComponent('contracts/show')
-    assert.deepEqual(draft.inertiaProps.can, { revise: true, submit: true, decideApprovalId: null })
+    assert.deepEqual(draft.inertiaProps.can, {
+      revise: true,
+      submit: true,
+      comment: true,
+      generateDocument: false,
+      downloadDocument: false,
+      decideApprovalId: null,
+    })
     assert.equal(draft.inertiaProps.organization.role, 'member')
 
     await client
@@ -104,6 +111,9 @@ test.group('Parcours HTTP', (group) => {
     assert.deepEqual((await show(member)).inertiaProps.can, {
       revise: false,
       submit: false,
+      comment: true,
+      generateDocument: false,
+      downloadDocument: false,
       decideApprovalId: null,
     })
     assert.equal((await show(legal)).inertiaProps.can.decideApprovalId, legalStep.id)
@@ -272,6 +282,9 @@ test.group('Isolation et rôles', (group) => {
     assert.deepEqual(page.inertiaProps.can, {
       revise: false,
       submit: false,
+      comment: false,
+      generateDocument: false,
+      downloadDocument: false,
       decideApprovalId: null,
     })
     assert.isFalse(

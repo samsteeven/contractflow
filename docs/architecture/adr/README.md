@@ -8,3 +8,4 @@
 | [004](0004-decisions-sous-verrou.md) | Toute action qui change un contrat passe par le verrou de sa ligne |
 | [005](0005-immuabilite-en-base.md) | Versions et journal immuables, garantis par la base |
 | [006](0006-organisation-par-appartenance.md) | L'organisation courante vient de l'appartenance, jamais de la requête |
+| [007](0007-modeles-pdf-et-stockage-s3.md) | Modèles remplis une fois, PDF archivé par version, stockage S3 par URL pré-signée |

@@ -1,7 +1,9 @@
 import type { Assert } from '@japa/assert'
 import RuleViolation, { type RuleViolationReason } from '#exceptions/rule_violation'
+import Approval from '#models/approval'
 import Membership from '#models/membership'
 import User from '#models/user'
+import ApprovalService from '#services/approval_service'
 import ContractService from '#services/contract_service'
 import OrganizationService from '#services/organization_service'
 import type { ApproverRole, Role } from '#services/vocabulary'
@@ -94,4 +96,32 @@ export async function assertViolation(
     return
   }
   assert.fail(`aucun refus, « ${reason} » attendu`)
+}
+
+/** Un contrat soumis au circuit Juridique puis Direction, puis approuvé par les deux étapes. */
+export async function createApprovedContract(
+  org: Awaited<ReturnType<typeof createOrganization>>,
+  body = BODY
+) {
+  const contract = await createContract(org.organization.id, org.member.id, body)
+  await new ContractService().submit(
+    org.organization.id,
+    contract.id,
+    org.member.id,
+    org.workflow.id
+  )
+  const steps = await Approval.query().where('contract_id', contract.id).orderBy('position')
+  const approvals = new ApprovalService()
+  const decide = (step: Approval, actor: User, role: Role) =>
+    approvals.decide({
+      organizationId: org.organization.id,
+      contractId: contract.id,
+      approvalId: step.id,
+      actor: { id: actor.id, role },
+      decision: 'approve',
+      comment: step === steps[0] ? 'Clauses conformes' : null,
+    })
+  await decide(steps[0], org.legal, 'legal')
+  await decide(steps[1], org.manager, 'manager')
+  return contract
 }

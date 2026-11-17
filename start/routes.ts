@@ -43,6 +43,14 @@ router
       .post('contracts/:id/approvals/:approvalId/decision', [controllers.Approvals, 'decide'])
       .as('approvals.decide')
 
+    router.post('contracts/:id/comments', [controllers.Comments, 'store']).as('comments.store')
+    router.post('contracts/:id/document', [controllers.Documents, 'store']).as('documents.store')
+    router.get('contracts/:id/document', [controllers.Documents, 'show']).as('documents.show')
+
+    router.get('templates', [controllers.Templates, 'index']).as('templates.index')
+    router.get('templates/new', [controllers.Templates, 'create']).as('templates.create')
+    router.post('templates', [controllers.Templates, 'store']).as('templates.store')
+
     router.get('workflows', [controllers.Workflows, 'index']).as('workflows.index')
     router.post('workflows', [controllers.Workflows, 'store']).as('workflows.store')
 

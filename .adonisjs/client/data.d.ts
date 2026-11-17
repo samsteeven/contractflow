@@ -8,6 +8,8 @@ import type { InferData, InferVariants } from '@adonisjs/core/types/transformers
 import type { InferSharedProps, InferFlashData } from '@adonisjs/inertia/types'
 import type ApprovalTransformer from '#transformers/approval_transformer'
 import type AuditLogTransformer from '#transformers/audit_log_transformer'
+import type CommentTransformer from '#transformers/comment_transformer'
+import type ContractTemplateTransformer from '#transformers/contract_template_transformer'
 import type ContractTransformer from '#transformers/contract_transformer'
 import type ContractVersionTransformer from '#transformers/contract_version_transformer'
 import type UserTransformer from '#transformers/user_transformer'
@@ -21,6 +23,14 @@ export namespace Data {
   export type AuditLog = InferData<AuditLogTransformer>
   export namespace AuditLog {
     export type Variants = InferVariants<AuditLogTransformer>
+  }
+  export type Comment = InferData<CommentTransformer>
+  export namespace Comment {
+    export type Variants = InferVariants<CommentTransformer>
+  }
+  export type ContractTemplate = InferData<ContractTemplateTransformer>
+  export namespace ContractTemplate {
+    export type Variants = InferVariants<ContractTemplateTransformer>
   }
   export type Contract = InferData<ContractTransformer>
   export namespace Contract {

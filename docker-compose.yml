@@ -21,5 +21,16 @@ services:
       timeout: 3s
       retries: 20
 
+  # Stockage compatible S3 pour les PDF en local (le bucket est créé au démarrage) ;
+  # la production vise AWS S3. Les données sont perdues à l'arrêt du conteneur : c'est voulu.
+  s3:
+    image: adobe/s3mock:latest
+    container_name: contractflow-s3
+    environment:
+      COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS: contractflow-documents
+      COM_ADOBE_TESTING_S3MOCK_STORE_REGION: eu-west-3
+    ports:
+      - '127.0.0.1:${S3_PORT:-9008}:9090'
+
 volumes:
   pgdata:

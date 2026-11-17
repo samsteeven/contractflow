@@ -2,6 +2,11 @@
 import type { routes } from './index.ts'
 
 export interface ApiDefinition {
+  drive: {
+    fs: {
+      serve: typeof routes['drive.fs.serve']
+    }
+  }
   home: typeof routes['home']
   newAccount: {
     create: typeof routes['new_account.create']
@@ -23,6 +28,18 @@ export interface ApiDefinition {
   }
   approvals: {
     decide: typeof routes['approvals.decide']
+  }
+  comments: {
+    store: typeof routes['comments.store']
+  }
+  documents: {
+    store: typeof routes['documents.store']
+    show: typeof routes['documents.show']
+  }
+  templates: {
+    index: typeof routes['templates.index']
+    create: typeof routes['templates.create']
+    store: typeof routes['templates.store']
   }
   workflows: {
     index: typeof routes['workflows.index']

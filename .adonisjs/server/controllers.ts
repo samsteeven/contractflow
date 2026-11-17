@@ -5,10 +5,13 @@
 
 export const controllers = {
   Approvals: () => import('#controllers/approvals_controller'),
+  Comments: () => import('#controllers/comments_controller'),
   Contracts: () => import('#controllers/contracts_controller'),
   Dashboard: () => import('#controllers/dashboard_controller'),
+  Documents: () => import('#controllers/documents_controller'),
   Members: () => import('#controllers/members_controller'),
   NewAccount: () => import('#controllers/new_account_controller'),
   Session: () => import('#controllers/session_controller'),
+  Templates: () => import('#controllers/templates_controller'),
   Workflows: () => import('#controllers/workflows_controller'),
 }

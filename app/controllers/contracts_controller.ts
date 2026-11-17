@@ -1,6 +1,9 @@
 import Approval from '#models/approval'
 import AuditLog from '#models/audit_log'
+import Comment from '#models/comment'
 import Contract from '#models/contract'
+import ContractDocument from '#models/contract_document'
+import ContractTemplate from '#models/contract_template'
 import Workflow from '#models/workflow'
 import { activeStep } from '#services/approval_service'
 import ContractService from '#services/contract_service'
@@ -8,10 +11,13 @@ import { diffLines } from '#services/text_diff'
 import { AUTHOR_ROLES, CONTRACT_STATUSES, type ContractStatus } from '#services/vocabulary'
 import ApprovalTransformer from '#transformers/approval_transformer'
 import AuditLogTransformer from '#transformers/audit_log_transformer'
+import CommentTransformer from '#transformers/comment_transformer'
+import ContractTemplateTransformer from '#transformers/contract_template_transformer'
 import ContractTransformer from '#transformers/contract_transformer'
 import ContractVersionTransformer from '#transformers/contract_version_transformer'
 import {
   createContractValidator,
+  createFromTemplateValidator,
   reviseContractValidator,
   submitContractValidator,
 } from '#validators/contract'
@@ -39,9 +45,17 @@ export default class ContractsController {
     })
   }
 
-  async create({ inertia, bouncer, membership }: HttpContext) {
+  async create({ inertia, bouncer, membership, organization, request }: HttpContext) {
     await bouncer.with('ContractPolicy').authorize('write', membership)
-    return inertia.render('contracts/create', {})
+    const templates = await ContractTemplate.query()
+      .where('organization_id', organization.id)
+      .orderBy('name')
+    // Un modèle d'une autre organisation n'existe pas : on l'ignore, sans erreur.
+    const selected = templates.find((template) => template.id === Number(request.input('template')))
+    return inertia.render('contracts/create', {
+      templates: ContractTemplateTransformer.transform(templates),
+      selectedTemplateId: selected?.id ?? null,
+    })
   }
 
   async store({
@@ -54,8 +68,18 @@ export default class ContractsController {
     membership,
   }: HttpContext) {
     await bouncer.with('ContractPolicy').authorize('write', membership)
-    const input = await request.validateUsing(createContractValidator)
-    const contract = await this.contracts.create(organization.id, auth.getUserOrFail().id, input)
+    const actorId = auth.getUserOrFail().id
+    let contract
+    if (request.input('templateId')) {
+      const input = await request.validateUsing(createFromTemplateValidator)
+      contract = await this.contracts.createFromTemplate(organization.id, actorId, {
+        ...input,
+        values: input.values ?? {},
+      })
+    } else {
+      const input = await request.validateUsing(createContractValidator)
+      contract = await this.contracts.create(organization.id, actorId, input)
+    }
 
     session.flash('success', 'Contrat créé en brouillon.')
     return response.redirect().toRoute('contracts.show', { id: contract.id })
@@ -79,6 +103,14 @@ export default class ContractsController {
       .where('subject_id', contract.id)
       .preload('actor')
       .orderBy('id', 'desc')
+    const comments = await Comment.query()
+      .where('contract_id', contract.id)
+      .preload('author')
+      .orderBy('id', 'desc')
+    const document = await ContractDocument.query()
+      .where('contract_id', contract.id)
+      .orderBy('id', 'desc')
+      .first()
     const workflows = await Workflow.query()
       .where('organization_id', organization.id)
       .preload('steps')
@@ -103,6 +135,10 @@ export default class ContractsController {
       diff: previous ? diffLines(previous.body, selected.body) : null,
       approvals: ApprovalTransformer.transform(approvals),
       audit: AuditLogTransformer.transform(audit),
+      comments: CommentTransformer.transform(comments),
+      document: document
+        ? { versionId: document.contractVersionId, sizeBytes: document.sizeBytes }
+        : null,
       workflows: workflows.map((workflow) => ({
         id: workflow.id,
         name: workflow.name,
@@ -111,6 +147,10 @@ export default class ContractsController {
       can: {
         revise: canWrite && contract.status !== 'in_review',
         submit: canWrite && contract.status === 'draft',
+        comment: canWrite,
+        generateDocument:
+          canWrite && contract.status === 'approved' && document?.contractVersionId !== latest.id,
+        downloadDocument: document !== null,
         // L'étape que l'utilisateur peut traiter maintenant, s'il y en a une.
         decideApprovalId:
           active && active.approverRole === membership.role && latest.authorId !== user.id
