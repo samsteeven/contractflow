@@ -1,3 +1,4 @@
+import ContractTracking, { type Tracking } from '~/components/contract_tracking'
 import Field from '~/components/field'
 import Page from '~/components/page'
 import Section from '~/components/section'
@@ -20,6 +21,7 @@ type Props = InertiaProps<{
   audit: Data.AuditLog[]
   comments: Data.Comment[]
   document: { versionId: number; sizeBytes: number } | null
+  tracking: Tracking | null
   signature: {
     status: string
     signers: {
@@ -37,6 +39,8 @@ type Props = InertiaProps<{
     revise: boolean
     submit: boolean
     comment: boolean
+    manageTracking: boolean
+    engageTerm: boolean
     requestSignature: boolean
     cancelSignature: boolean
     generateDocument: boolean
@@ -58,6 +62,7 @@ export default function ContractsShow(props: Props) {
     audit,
     comments,
     document,
+    tracking,
     signature,
     workflows,
     can,
@@ -124,6 +129,8 @@ export default function ContractsShow(props: Props) {
             )}
             <p className="muted mono checksum">SHA-256 {selected.checksum}</p>
           </Section>
+
+          {tracking && <ContractTracking contractId={contract.id} tracking={tracking} can={can} />}
 
           {can.revise && (
             <Section

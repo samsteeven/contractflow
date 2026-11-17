@@ -48,6 +48,19 @@ export interface ApiDefinition {
     cancel: typeof routes['signatures.cancel']
     proof: typeof routes['signatures.proof']
   }
+  terms: {
+    store: typeof routes['terms.store']
+    renew: typeof routes['terms.renew']
+    terminate: typeof routes['terms.terminate']
+  }
+  obligations: {
+    store: typeof routes['obligations.store']
+    complete: typeof routes['obligations.complete']
+    cancel: typeof routes['obligations.cancel']
+  }
+  deadlines: {
+    index: typeof routes['deadlines.index']
+  }
   templates: {
     index: typeof routes['templates.index']
     create: typeof routes['templates.create']

@@ -24,6 +24,16 @@ export type RuleViolationReason =
   | 'invalid_signers'
   | 'invalid_webhook'
   | 'no_pending_signature'
+  | 'contract_not_signed'
+  | 'term_exists'
+  | 'no_term'
+  | 'term_terminated'
+  | 'invalid_term'
+  | 'unknown_assignee'
+  | 'invalid_obligation'
+  | 'obligation_closed'
+  | 'not_assignee'
+  | 'no_renewal_term'
 
 /**
  * Une règle métier refuse l'action. `reason` identifie la règle (les tests s'appuient dessus),

@@ -152,6 +152,48 @@ const routes = {
     tokens: [[0,"contracts"],[1,"id"],[0,"signature"],[0,"proof"]],
     types: placeholder as Registry['signatures.proof']['types'],
   },
+  'terms.store': {
+    methods: ["POST"],
+    pattern: '/contracts/:id/term',
+    tokens: [[0,"contracts"],[1,"id"],[0,"term"]],
+    types: placeholder as Registry['terms.store']['types'],
+  },
+  'terms.renew': {
+    methods: ["POST"],
+    pattern: '/contracts/:id/term/renew',
+    tokens: [[0,"contracts"],[1,"id"],[0,"term"],[0,"renew"]],
+    types: placeholder as Registry['terms.renew']['types'],
+  },
+  'terms.terminate': {
+    methods: ["POST"],
+    pattern: '/contracts/:id/term/terminate',
+    tokens: [[0,"contracts"],[1,"id"],[0,"term"],[0,"terminate"]],
+    types: placeholder as Registry['terms.terminate']['types'],
+  },
+  'obligations.store': {
+    methods: ["POST"],
+    pattern: '/contracts/:id/obligations',
+    tokens: [[0,"contracts"],[1,"id"],[0,"obligations"]],
+    types: placeholder as Registry['obligations.store']['types'],
+  },
+  'obligations.complete': {
+    methods: ["POST"],
+    pattern: '/contracts/:id/obligations/:obligationId/complete',
+    tokens: [[0,"contracts"],[1,"id"],[0,"obligations"],[1,"obligationId"],[0,"complete"]],
+    types: placeholder as Registry['obligations.complete']['types'],
+  },
+  'obligations.cancel': {
+    methods: ["POST"],
+    pattern: '/contracts/:id/obligations/:obligationId/cancel',
+    tokens: [[0,"contracts"],[1,"id"],[0,"obligations"],[1,"obligationId"],[0,"cancel"]],
+    types: placeholder as Registry['obligations.cancel']['types'],
+  },
+  'deadlines.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/deadlines',
+    tokens: [[0,"deadlines"]],
+    types: placeholder as Registry['deadlines.index']['types'],
+  },
   'templates.index': {
     methods: ["GET","HEAD"],
     pattern: '/templates',

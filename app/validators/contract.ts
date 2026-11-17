@@ -70,3 +70,22 @@ export const requestSignatureValidator = vine.create({
 export const commentValidator = vine.create({
   body: vine.string().trim().minLength(1).maxLength(2000),
 })
+
+const day = () => vine.string().regex(/^\d{4}-\d{2}-\d{2}$/)
+
+export const setTermValidator = vine.create({
+  startsOn: day(),
+  endsOn: day(),
+  autoRenew: vine.boolean().optional(),
+  noticeDays: vine.number().min(0).max(365).withoutDecimals(),
+  renewalMonths: vine.number().min(1).max(60).withoutDecimals().nullable().optional(),
+  assigneeId: vine.number().positive().withoutDecimals(),
+})
+
+export const addObligationValidator = vine.create({
+  title: vine.string().trim().minLength(3).maxLength(200),
+  kind: vine.enum(['payment', 'delivery', 'report', 'review', 'other'] as const),
+  dueOn: day(),
+  assigneeId: vine.number().positive().withoutDecimals(),
+  notes: vine.string().trim().maxLength(2000).nullable().optional(),
+})

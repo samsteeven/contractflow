@@ -19,6 +19,12 @@ export type AuditAction =
   | 'signature.declined'
   | 'signature.cancelled'
   | 'contract.signed'
+  | 'term.set'
+  | 'term.renewed'
+  | 'term.terminated'
+  | 'obligation.created'
+  | 'obligation.completed'
+  | 'obligation.cancelled'
 
 type Entry = {
   organizationId: number
@@ -26,7 +32,7 @@ type Entry = {
   actorId: number | null
   action: AuditAction
   subject: {
-    type: 'organization' | 'membership' | 'workflow' | 'contract' | 'template'
+    type: 'organization' | 'membership' | 'workflow' | 'contract' | 'template' | 'obligation'
     id: number
   }
   metadata?: Record<string, string | number | boolean | null>

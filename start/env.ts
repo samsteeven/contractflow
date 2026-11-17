@@ -47,4 +47,19 @@ export default await Env.create(new URL('../', import.meta.url), {
   // Signature électronique : prestataire et secret partagé des webhooks entrants
   SIGNATURE_PROVIDER: Env.schema.enum(['sandbox'] as const),
   SIGNATURE_WEBHOOK_SECRET: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring the mail package
+  |----------------------------------------------------------
+  */
+  MAIL_MAILER: Env.schema.enum(['smtp'] as const),
+  MAIL_FROM_NAME: Env.schema.string(),
+  MAIL_FROM_ADDRESS: Env.schema.string(),
+  SMTP_HOST: Env.schema.string(),
+  SMTP_PORT: Env.schema.number(),
+
+  // File de tâches (BullMQ sur Redis) pour les rappels d'échéances
+  REDIS_HOST: Env.schema.string(),
+  REDIS_PORT: Env.schema.number(),
 })

@@ -5,11 +5,16 @@ import Contract from '#models/contract'
 import SignatureRequest from '#models/signature_request'
 import SignatureProof from '#models/signature_proof'
 import ContractDocument from '#models/contract_document'
+import ContractTerm from '#models/contract_term'
+import Membership from '#models/membership'
+import Obligation from '#models/obligation'
 import ContractTemplate from '#models/contract_template'
 import Workflow from '#models/workflow'
 import { activeStep } from '#services/approval_service'
 import ContractService from '#services/contract_service'
 import { diffLines } from '#services/text_diff'
+import { daysUntil } from '#services/reminder_service'
+import { ADMIN_ROLES } from '#services/vocabulary'
 import { signatureProvider } from '#services/signature_provider'
 import {
   AUTHOR_ROLES,
@@ -31,6 +36,7 @@ import {
 } from '#validators/contract'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
+import { DateTime } from 'luxon'
 
 @inject()
 export default class ContractsController {
@@ -127,6 +133,21 @@ export default class ContractsController {
     const proof = signatureRequest
       ? await SignatureProof.query().where('signature_request_id', signatureRequest.id).first()
       : null
+    const signed = contract.status === 'signed'
+    const term = signed
+      ? await ContractTerm.query().where('contract_id', contract.id).first()
+      : null
+    const obligations = signed
+      ? await Obligation.query()
+          .where('contract_id', contract.id)
+          .preload('assignee')
+          .orderByRaw("case status when 'open' then 0 else 1 end")
+          .orderBy('due_on')
+      : []
+    const members = signed
+      ? await Membership.query().where('organization_id', organization.id).preload('user')
+      : []
+    const today = DateTime.utc()
     const workflows = await Workflow.query()
       .where('organization_id', organization.id)
       .preload('steps')
@@ -152,6 +173,40 @@ export default class ContractsController {
       approvals: ApprovalTransformer.transform(approvals),
       audit: AuditLogTransformer.transform(audit),
       comments: CommentTransformer.transform(comments),
+      tracking: signed
+        ? {
+            term: term
+              ? {
+                  startsOn: term.startsOn.toISODate()!,
+                  endsOn: term.endsOn.toISODate()!,
+                  autoRenew: term.autoRenew,
+                  noticeDays: term.noticeDays,
+                  renewalMonths: term.renewalMonths,
+                  status: term.status,
+                }
+              : null,
+            obligations: obligations.map((obligation) => ({
+              id: obligation.id,
+              title: obligation.title,
+              kind: obligation.kind,
+              status: obligation.status,
+              dueOn: obligation.dueOn.toISODate()!,
+              daysLeft: daysUntil(obligation.dueOn, today),
+              assignee: obligation.assignee.fullName ?? obligation.assignee.email,
+              notes: obligation.notes,
+              canComplete:
+                obligation.status === 'open' &&
+                (obligation.assigneeId === user.id || ADMIN_ROLES.includes(membership.role)),
+              canCancel:
+                obligation.status === 'open' &&
+                (obligation.createdBy === user.id || ADMIN_ROLES.includes(membership.role)),
+            })),
+            members: members.map((member) => ({
+              id: member.userId,
+              name: member.user.fullName ?? member.user.email,
+            })),
+          }
+        : null,
       signature: signatureRequest
         ? {
             status: signatureRequest.status,
@@ -182,6 +237,9 @@ export default class ContractsController {
         revise: canWrite && !['in_review', 'signing', 'signed'].includes(contract.status),
         submit: canWrite && contract.status === 'draft',
         comment: canWrite,
+        manageTracking: canWrite && signed,
+        engageTerm:
+          SIGNATURE_ROLES.includes(membership.role) && signed && term?.status === 'active',
         requestSignature:
           SIGNATURE_ROLES.includes(membership.role) && contract.status === 'approved',
         cancelSignature: SIGNATURE_ROLES.includes(membership.role) && contract.status === 'signing',

@@ -28,6 +28,13 @@ export type ScannedRoutes = {
     'signatures.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'signatures.cancel': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'signatures.proof': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'terms.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'terms.renew': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'terms.terminate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'obligations.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'obligations.complete': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'obligationId': ParamValue} }
+    'obligations.cancel': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'obligationId': ParamValue} }
+    'deadlines.index': { paramsTuple?: []; params?: {} }
     'templates.index': { paramsTuple?: []; params?: {} }
     'templates.create': { paramsTuple?: []; params?: {} }
     'templates.store': { paramsTuple?: []; params?: {} }
@@ -48,6 +55,7 @@ export type ScannedRoutes = {
     'contracts.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'documents.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'signatures.proof': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'deadlines.index': { paramsTuple?: []; params?: {} }
     'templates.index': { paramsTuple?: []; params?: {} }
     'templates.create': { paramsTuple?: []; params?: {} }
     'workflows.index': { paramsTuple?: []; params?: {} }
@@ -65,6 +73,7 @@ export type ScannedRoutes = {
     'contracts.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'documents.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'signatures.proof': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'deadlines.index': { paramsTuple?: []; params?: {} }
     'templates.index': { paramsTuple?: []; params?: {} }
     'templates.create': { paramsTuple?: []; params?: {} }
     'workflows.index': { paramsTuple?: []; params?: {} }
@@ -84,6 +93,12 @@ export type ScannedRoutes = {
     'documents.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'signatures.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'signatures.cancel': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'terms.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'terms.renew': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'terms.terminate': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'obligations.store': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'obligations.complete': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'obligationId': ParamValue} }
+    'obligations.cancel': { paramsTuple: [ParamValue,ParamValue]; params: {'id': ParamValue,'obligationId': ParamValue} }
     'templates.store': { paramsTuple?: []; params?: {} }
     'workflows.store': { paramsTuple?: []; params?: {} }
     'members.store': { paramsTuple?: []; params?: {} }

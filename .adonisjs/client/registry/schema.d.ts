@@ -320,6 +320,97 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/signatures_controller').default['proof']>>>
     }
   }
+  'terms.store': {
+    methods: ["POST"]
+    pattern: '/contracts/:id/term'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/contract').setTermValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/contract').setTermValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/obligations_controller').default['setTerm']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/obligations_controller').default['setTerm']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/obligations_controller').default['setTerm']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'terms.renew': {
+    methods: ["POST"]
+    pattern: '/contracts/:id/term/renew'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/obligations_controller').default['renew']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/obligations_controller').default['renew']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/obligations_controller').default['renew']>>>
+    }
+  }
+  'terms.terminate': {
+    methods: ["POST"]
+    pattern: '/contracts/:id/term/terminate'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/obligations_controller').default['terminate']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/obligations_controller').default['terminate']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/obligations_controller').default['terminate']>>>
+    }
+  }
+  'obligations.store': {
+    methods: ["POST"]
+    pattern: '/contracts/:id/obligations'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/contract').addObligationValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/contract').addObligationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/obligations_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/obligations_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/obligations_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'obligations.complete': {
+    methods: ["POST"]
+    pattern: '/contracts/:id/obligations/:obligationId/complete'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { id: ParamValue; obligationId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/obligations_controller').default['complete']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/obligations_controller').default['complete']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/obligations_controller').default['complete']>>>
+    }
+  }
+  'obligations.cancel': {
+    methods: ["POST"]
+    pattern: '/contracts/:id/obligations/:obligationId/cancel'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { id: ParamValue; obligationId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/obligations_controller').default['cancel']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/obligations_controller').default['cancel']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/obligations_controller').default['cancel']>>>
+    }
+  }
+  'deadlines.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/deadlines'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/deadlines_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/deadlines_controller').default['index']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/deadlines_controller').default['index']>>>
+    }
+  }
   'templates.index': {
     methods: ["GET","HEAD"]
     pattern: '/templates'

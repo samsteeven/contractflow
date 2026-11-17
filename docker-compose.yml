@@ -32,5 +32,25 @@ services:
     ports:
       - '127.0.0.1:${S3_PORT:-9008}:9090'
 
+  # File de tâches des rappels (BullMQ).
+  redis:
+    image: redis:7-alpine
+    container_name: contractflow-redis
+    ports:
+      - '127.0.0.1:${REDIS_PORT:-6389}:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  # Boîte de réception de développement : les rappels s'y affichent, rien ne part vraiment.
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: contractflow-mailpit
+    ports:
+      - '127.0.0.1:${SMTP_PORT:-1035}:1025'
+      - '127.0.0.1:${MAILPIT_UI_PORT:-8035}:8025'
+
 volumes:
   pgdata:

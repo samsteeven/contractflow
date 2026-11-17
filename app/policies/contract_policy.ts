@@ -13,6 +13,11 @@ export default class ContractPolicy extends BasePolicy {
     return AUTHOR_ROLES.includes(membership.role)
   }
 
+  /** Engager l'organisation : signature, reconduction ou fin d'un contrat. */
+  engage(_user: User, membership: Membership): AuthorizerResponse {
+    return SIGNATURE_ROLES.includes(membership.role)
+  }
+
   /** Demander ou annuler une signature engage l'organisation. */
   requestSignature(_user: User, membership: Membership): AuthorizerResponse {
     return SIGNATURE_ROLES.includes(membership.role)

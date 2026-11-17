@@ -6,6 +6,7 @@ import ApprovalService from '#services/approval_service'
 import CommentService from '#services/comment_service'
 import ContractService from '#services/contract_service'
 import DocumentService from '#services/document_service'
+import ObligationService from '#services/obligation_service'
 import OrganizationService from '#services/organization_service'
 import type { Role } from '#services/vocabulary'
 import { SandboxSignatureProvider } from '#services/signature_provider'
@@ -15,6 +16,7 @@ import TemplateService from '#services/template_service'
 import WorkflowService from '#services/workflow_service'
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import db from '@adonisjs/lucid/services/db'
+import { DateTime } from 'luxon'
 
 /**
  * Organisation de démonstration « Atelier Nova » : un compte par rôle (mot de passe commun,
@@ -184,6 +186,54 @@ export default class extends BaseSeeder {
       signerId: request.signers[0].externalId,
     })
     await new SignatureWebhookService().handle(rawBody, header)
+
+    // Contrat signé et suivi : durée avec reconduction, échéances proches et en retard.
+    const hosting = await contracts.create(org, people.member.id, {
+      title: 'Hébergement et infogérance',
+      counterparty: 'Cumulus Hosting',
+      type: 'service',
+      body: SERVICE,
+    })
+    await contracts.submit(org, hosting.id, people.member.id, standard.id)
+    await decide(hosting.id, 'legal', 'approve')
+    await decide(hosting.id, 'manager', 'approve')
+    await new SignatureService(provider).request(org, hosting.id, people.manager.id, [
+      { name: 'Claire Morel', email: 'claire.morel@cumulus.test' },
+    ])
+    const hostingRequest = await SignatureRequest.query()
+      .where('contract_id', hosting.id)
+      .preload('signers')
+      .firstOrFail()
+    const signed = provider.buildEvent({
+      type: 'signer.signed',
+      requestId: hostingRequest.externalId,
+      signerId: hostingRequest.signers[0].externalId,
+    })
+    await new SignatureWebhookService().handle(signed.rawBody, signed.header)
+
+    const obligations = new ObligationService()
+    const day = (offset: number) => DateTime.utc().plus({ days: offset }).toISODate()!
+    await obligations.setTerm(org, hosting.id, people.member.id, {
+      startsOn: day(-300),
+      endsOn: day(65),
+      autoRenew: true,
+      noticeDays: 60,
+      renewalMonths: 12,
+      assigneeId: people.manager.id,
+    })
+    for (const [title, kind, offset, assignee] of [
+      ['Payer la facture trimestrielle', 'payment', 6, people.manager],
+      ['Recevoir le rapport de disponibilité', 'report', -2, people.legal],
+      ['Revue annuelle des accès', 'review', 28, people.member],
+    ] as const) {
+      await obligations.addObligation(org, hosting.id, people.member.id, {
+        title,
+        kind,
+        dueOn: day(offset),
+        assigneeId: assignee.id,
+        notes: null,
+      })
+    }
 
     // Modèles : deux textes à variables, dont l'un sert à créer un brouillon.
     const templates = new TemplateService()

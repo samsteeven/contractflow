@@ -3,9 +3,13 @@ import RuleViolation, { type RuleViolationReason } from '#exceptions/rule_violat
 import Approval from '#models/approval'
 import Membership from '#models/membership'
 import User from '#models/user'
+import SignatureRequest from '#models/signature_request'
 import ApprovalService from '#services/approval_service'
 import ContractService from '#services/contract_service'
 import OrganizationService from '#services/organization_service'
+import { SandboxSignatureProvider } from '#services/signature_provider'
+import SignatureService from '#services/signature_service'
+import SignatureWebhookService from '#services/signature_webhook_service'
 import type { ApproverRole, Role } from '#services/vocabulary'
 import WorkflowService from '#services/workflow_service'
 import db from '@adonisjs/lucid/services/db'
@@ -123,5 +127,25 @@ export async function createApprovedContract(
     })
   await decide(steps[0], org.legal, 'legal')
   await decide(steps[1], org.manager, 'manager')
+  return contract
+}
+
+/** Un contrat approuvé, envoyé à la signature d'une personne qui signe : il est figé. */
+export async function createSignedContract(org: Awaited<ReturnType<typeof createOrganization>>) {
+  const contract = await createApprovedContract(org)
+  const provider = new SandboxSignatureProvider()
+  await new SignatureService(provider).request(org.organization.id, contract.id, org.manager.id, [
+    { name: 'Alice Martin', email: 'alice@nordwind.test' },
+  ])
+  const request = await SignatureRequest.query()
+    .where('contract_id', contract.id)
+    .preload('signers')
+    .firstOrFail()
+  const { rawBody, header } = provider.buildEvent({
+    type: 'signer.signed',
+    requestId: request.externalId,
+    signerId: request.signers[0].externalId,
+  })
+  await new SignatureWebhookService().handle(rawBody, header)
   return contract
 }

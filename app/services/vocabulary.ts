@@ -54,3 +54,26 @@ export type SignatureStatus = (typeof SIGNATURE_STATUSES)[number]
 
 export const SIGNER_STATUSES = ['pending', 'signed', 'declined'] as const
 export type SignerStatus = (typeof SIGNER_STATUSES)[number]
+
+export const OBLIGATION_KINDS = [
+  'payment',
+  'delivery',
+  'report',
+  'review',
+  'renewal_notice',
+  'other',
+] as const
+export type ObligationKind = (typeof OBLIGATION_KINDS)[number]
+/** Le préavis de reconduction est créé par le système à partir de la durée du contrat. */
+export const MANUAL_OBLIGATION_KINDS: readonly ObligationKind[] = OBLIGATION_KINDS.filter(
+  (kind) => kind !== 'renewal_notice'
+)
+
+export const OBLIGATION_STATUSES = ['open', 'done', 'cancelled'] as const
+export type ObligationStatus = (typeof OBLIGATION_STATUSES)[number]
+
+export const TERM_STATUSES = ['active', 'terminated'] as const
+export type TermStatus = (typeof TERM_STATUSES)[number]
+
+export const REMINDER_STAGES = ['d30', 'd7', 'd1', 'd0', 'overdue'] as const
+export type ReminderStage = (typeof REMINDER_STAGES)[number]

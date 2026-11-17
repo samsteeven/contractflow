@@ -169,6 +169,45 @@ export class ContractTemplateSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
+export class ContractTermSchema extends BaseModel {
+  static $columns = [
+    'autoRenew',
+    'contractId',
+    'createdAt',
+    'createdBy',
+    'endsOn',
+    'id',
+    'noticeDays',
+    'renewalMonths',
+    'startsOn',
+    'status',
+    'updatedAt',
+  ] as const
+  $columns = ContractTermSchema.$columns
+  @column()
+  declare autoRenew: boolean
+  @column()
+  declare contractId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare createdBy: number
+  @column.date()
+  declare endsOn: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare noticeDays: number
+  @column()
+  declare renewalMonths: number | null
+  @column.date()
+  declare startsOn: DateTime
+  @column()
+  declare status: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class ContractVersionSchema extends BaseModel {
   static $columns = [
     'authorId',
@@ -258,6 +297,54 @@ export class MembershipSchema extends BaseModel {
   declare userId: number
 }
 
+export class ObligationSchema extends BaseModel {
+  static $columns = [
+    'assigneeId',
+    'completedAt',
+    'completedBy',
+    'contractId',
+    'createdAt',
+    'createdBy',
+    'dueOn',
+    'id',
+    'kind',
+    'notes',
+    'organizationId',
+    'status',
+    'title',
+    'updatedAt',
+  ] as const
+  $columns = ObligationSchema.$columns
+  @column()
+  declare assigneeId: number
+  @column.dateTime()
+  declare completedAt: DateTime | null
+  @column()
+  declare completedBy: number | null
+  @column()
+  declare contractId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare createdBy: number
+  @column.date()
+  declare dueOn: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare kind: string
+  @column()
+  declare notes: string | null
+  @column()
+  declare organizationId: number
+  @column()
+  declare status: string
+  @column()
+  declare title: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class OrganizationSchema extends BaseModel {
   static $columns = ['createdAt', 'id', 'name', 'slug', 'updatedAt'] as const
   $columns = OrganizationSchema.$columns
@@ -271,6 +358,39 @@ export class OrganizationSchema extends BaseModel {
   declare slug: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
+}
+
+export class ReminderSchema extends BaseModel {
+  static $columns = [
+    'attempts',
+    'id',
+    'lastError',
+    'obligationId',
+    'queuedAt',
+    'recipientId',
+    'sentAt',
+    'stage',
+    'status',
+  ] as const
+  $columns = ReminderSchema.$columns
+  @column()
+  declare attempts: number
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare lastError: string | null
+  @column()
+  declare obligationId: number
+  @column.dateTime()
+  declare queuedAt: DateTime
+  @column()
+  declare recipientId: number
+  @column.dateTime()
+  declare sentAt: DateTime | null
+  @column()
+  declare stage: string
+  @column()
+  declare status: string
 }
 
 export class SignatureEventSchema extends BaseModel {

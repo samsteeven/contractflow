@@ -51,6 +51,12 @@ const AUDIT_LABELS: Record<string, string> = {
   'signature.declined': 'Signature refusée',
   'signature.cancelled': 'Signature annulée',
   'contract.signed': 'Contrat signé',
+  'term.set': 'Durée définie',
+  'term.renewed': 'Contrat reconduit',
+  'term.terminated': 'Contrat terminé',
+  'obligation.created': 'Obligation ajoutée',
+  'obligation.completed': 'Obligation close',
+  'obligation.cancelled': 'Obligation annulée',
 }
 
 export function auditLabel(action: string, metadata: Record<string, unknown>) {
@@ -62,6 +68,22 @@ export function auditLabel(action: string, metadata: Record<string, unknown>) {
     metadata.signer && String(metadata.signer),
   ].filter(Boolean)
   return details.length ? `${label} (${details.join(', ')})` : label
+}
+
+export const KIND_LABELS: Record<string, string> = {
+  payment: 'Paiement',
+  delivery: 'Livraison',
+  report: 'Rapport',
+  review: 'Revue',
+  renewal_notice: 'Échéance du contrat',
+  other: 'Autre',
+}
+
+const day = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long', timeZone: 'UTC' })
+
+/** Un jour calendaire `AAAA-MM-JJ`, sans heure : affiché en UTC pour ne jamais glisser d'un jour. */
+export function formatDay(value: string) {
+  return day.format(new Date(`${value}T00:00:00Z`))
 }
 
 const dateTime = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium', timeStyle: 'short' })

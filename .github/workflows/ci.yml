@@ -28,6 +28,13 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U contractflow -d contractflow_test"
           --health-interval 3s --health-timeout 3s --health-retries 20
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6389:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 3s --health-timeout 3s --health-retries 20
     steps:
       - uses: actions/checkout@v5
 

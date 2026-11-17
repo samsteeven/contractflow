@@ -63,6 +63,25 @@ router
       .get('contracts/:id/signature/proof', [controllers.Signatures, 'proof'])
       .as('signatures.proof')
 
+    router.post('contracts/:id/term', [controllers.Obligations, 'setTerm']).as('terms.store')
+    router.post('contracts/:id/term/renew', [controllers.Obligations, 'renew']).as('terms.renew')
+    router
+      .post('contracts/:id/term/terminate', [controllers.Obligations, 'terminate'])
+      .as('terms.terminate')
+    router
+      .post('contracts/:id/obligations', [controllers.Obligations, 'store'])
+      .as('obligations.store')
+    router
+      .post('contracts/:id/obligations/:obligationId/complete', [
+        controllers.Obligations,
+        'complete',
+      ])
+      .as('obligations.complete')
+    router
+      .post('contracts/:id/obligations/:obligationId/cancel', [controllers.Obligations, 'cancel'])
+      .as('obligations.cancel')
+    router.get('deadlines', [controllers.Deadlines, 'index']).as('deadlines.index')
+
     router.get('templates', [controllers.Templates, 'index']).as('templates.index')
     router.get('templates/new', [controllers.Templates, 'create']).as('templates.create')
     router.post('templates', [controllers.Templates, 'store']).as('templates.store')
@@ -75,4 +94,5 @@ router
   })
   .where('id', router.matchers.number())
   .where('approvalId', router.matchers.number())
+  .where('obligationId', router.matchers.number())
   .use([middleware.auth(), middleware.organization()])
