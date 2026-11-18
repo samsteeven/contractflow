@@ -8,6 +8,17 @@ import string from '@adonisjs/core/helpers/string'
 import db from '@adonisjs/lucid/services/db'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 
+/** Seul un propriétaire accorde « propriétaire » et « administrateur » : on ne s'élève pas soi-même. */
+export function assertGrantable(actorRole: Role, granted: Role) {
+  if ((granted === 'owner' || granted === 'admin') && actorRole !== 'owner') {
+    throw new RuleViolation(
+      'role_not_grantable',
+      'Seul un propriétaire peut accorder ce rôle.',
+      403
+    )
+  }
+}
+
 export default class OrganizationService {
   /** Crée l'organisation et fait de son créateur le propriétaire, dans la transaction fournie. */
   async createWithOwner(trx: TransactionClientContract, owner: User, name: string) {
@@ -41,13 +52,7 @@ export default class OrganizationService {
     actor: { id: number; role: Role },
     input: { email: string; role: Role }
   ) {
-    if ((input.role === 'owner' || input.role === 'admin') && actor.role !== 'owner') {
-      throw new RuleViolation(
-        'role_not_grantable',
-        'Seul un propriétaire peut accorder ce rôle.',
-        403
-      )
-    }
+    assertGrantable(actor.role, input.role)
 
     return db.transaction(async (trx) => {
       const user = await User.query({ client: trx }).where('email', input.email).first()

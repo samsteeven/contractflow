@@ -4,6 +4,7 @@ import Comment from '#models/comment'
 import Contract from '#models/contract'
 import SignatureRequest from '#models/signature_request'
 import SignatureProof from '#models/signature_proof'
+import Attachment from '#models/attachment'
 import ContractDocument from '#models/contract_document'
 import ContractTerm from '#models/contract_term'
 import Membership from '#models/membership'
@@ -125,6 +126,10 @@ export default class ContractsController {
       .where('contract_id', contract.id)
       .orderBy('id', 'desc')
       .first()
+    const attachments = await Attachment.query()
+      .where('contract_id', contract.id)
+      .preload('uploader')
+      .orderBy('id')
     const signatureRequest = await SignatureRequest.query()
       .where('contract_id', contract.id)
       .preload('signers')
@@ -225,6 +230,13 @@ export default class ContractsController {
             hasProof: proof !== null,
           }
         : null,
+      attachments: attachments.map((attachment) => ({
+        id: attachment.id,
+        filename: attachment.filename,
+        sizeBytes: attachment.sizeBytes,
+        uploader: attachment.uploader.fullName ?? attachment.uploader.email,
+        createdAt: attachment.createdAt.toISO()!,
+      })),
       document: document
         ? { versionId: document.contractVersionId, sizeBytes: document.sizeBytes }
         : null,
@@ -237,6 +249,7 @@ export default class ContractsController {
         revise: canWrite && !['in_review', 'signing', 'signed'].includes(contract.status),
         submit: canWrite && contract.status === 'draft',
         comment: canWrite,
+        attach: canWrite && !['signing', 'signed'].includes(contract.status),
         manageTracking: canWrite && signed,
         engageTerm:
           SIGNATURE_ROLES.includes(membership.role) && signed && term?.status === 'active',

@@ -77,3 +77,12 @@ export type TermStatus = (typeof TERM_STATUSES)[number]
 
 export const REMINDER_STAGES = ['d30', 'd7', 'd1', 'd0', 'overdue'] as const
 export type ReminderStage = (typeof REMINDER_STAGES)[number]
+
+export const ROLE_LABELS: Record<Role, string> = {
+  owner: 'Propriétaire',
+  admin: 'Administrateur',
+  legal: 'Juridique',
+  manager: 'Direction',
+  member: 'Rédacteur',
+  viewer: 'Lecteur',
+}

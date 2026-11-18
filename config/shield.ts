@@ -1,3 +1,4 @@
+import app from '@adonisjs/core/services/app'
 import { defineConfig } from '@adonisjs/shield'
 
 const shieldConfig = defineConfig({
@@ -6,19 +7,29 @@ const shieldConfig = defineConfig({
    * to learn more.
    */
   csp: {
-    /**
-     * Enable the Content-Security-Policy header.
-     */
-    enabled: false,
+    enabled: true,
 
     /**
-     * Per-resource CSP directives.
+     * Rien ne vient d'ailleurs que de l'application elle-même. Les scripts exigent un jeton
+     * (nonce) renouvelé à chaque réponse : un script injecté dans une page n'en a pas.
+     * Les styles en ligne restent permis (propriétés `style` de React, balises de Vite en
+     * développement) : le risque d'une feuille de style injectée est bien plus faible.
+     * En développement, le rechargement à chaud de Vite passe par une WebSocket.
      */
-    directives: {},
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", '@nonce'],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", 'data:'],
+      fontSrc: ["'self'", 'data:'],
+      connectSrc: app.inDev ? ["'self'", 'ws:', 'wss:'] : ["'self'"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+      frameAncestors: ["'none'"],
+      ...(app.inProduction ? { upgradeInsecureRequests: [] } : {}),
+    },
 
-    /**
-     * Report violations without blocking resources.
-     */
     reportOnly: false,
   },
 

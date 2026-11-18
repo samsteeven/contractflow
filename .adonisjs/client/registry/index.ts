@@ -62,6 +62,18 @@ const routes = {
     tokens: [[0,"sandbox"],[0,"sign"],[1,"signerId"]],
     types: placeholder as Registry['sandbox.decide']['types'],
   },
+  'invitations.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/invitations/:token',
+    tokens: [[0,"invitations"],[1,"token"]],
+    types: placeholder as Registry['invitations.show']['types'],
+  },
+  'invitations.accept': {
+    methods: ["POST"],
+    pattern: '/invitations/:token',
+    tokens: [[0,"invitations"],[1,"token"]],
+    types: placeholder as Registry['invitations.accept']['types'],
+  },
   'session.destroy': {
     methods: ["POST"],
     pattern: '/logout',
@@ -121,6 +133,18 @@ const routes = {
     pattern: '/contracts/:id/comments',
     tokens: [[0,"contracts"],[1,"id"],[0,"comments"]],
     types: placeholder as Registry['comments.store']['types'],
+  },
+  'attachments.store': {
+    methods: ["POST"],
+    pattern: '/contracts/:id/attachments',
+    tokens: [[0,"contracts"],[1,"id"],[0,"attachments"]],
+    types: placeholder as Registry['attachments.store']['types'],
+  },
+  'attachments.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/contracts/:id/attachments/:attachmentId',
+    tokens: [[0,"contracts"],[1,"id"],[0,"attachments"],[1,"attachmentId"]],
+    types: placeholder as Registry['attachments.show']['types'],
   },
   'documents.store': {
     methods: ["POST"],
@@ -235,6 +259,18 @@ const routes = {
     pattern: '/members',
     tokens: [[0,"members"]],
     types: placeholder as Registry['members.store']['types'],
+  },
+  'invitations.store': {
+    methods: ["POST"],
+    pattern: '/invitations',
+    tokens: [[0,"invitations"]],
+    types: placeholder as Registry['invitations.store']['types'],
+  },
+  'invitations.revoke': {
+    methods: ["POST"],
+    pattern: '/invitations/:invitationId/revoke',
+    tokens: [[0,"invitations"],[1,"invitationId"],[0,"revoke"]],
+    types: placeholder as Registry['invitations.revoke']['types'],
   },
 } as const satisfies Record<string, AdonisEndpoint>
 

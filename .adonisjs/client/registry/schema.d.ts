@@ -125,6 +125,32 @@ export interface Registry {
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/sandbox_controller').default['decide']>>>
     }
   }
+  'invitations.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/invitations/:token'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { token: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/invitation_links_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/invitation_links_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/invitation_links_controller').default['show']>>>
+    }
+  }
+  'invitations.accept': {
+    methods: ["POST"]
+    pattern: '/invitations/:token'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/user').acceptInvitationValidator)>>
+      paramsTuple: [ParamValue]
+      params: { token: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/user').acceptInvitationValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/invitation_links_controller').default['accept']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/invitation_links_controller').default['accept']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/invitation_links_controller').default['accept']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'session.destroy': {
     methods: ["POST"]
     pattern: '/logout'
@@ -253,6 +279,32 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/comments_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/comments_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/comments_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'attachments.store': {
+    methods: ["POST"]
+    pattern: '/contracts/:id/attachments'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/attachments_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/attachments_controller').default['store']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/attachments_controller').default['store']>>>
+    }
+  }
+  'attachments.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/contracts/:id/attachments/:attachmentId'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue, ParamValue]
+      params: { id: ParamValue; attachmentId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/attachments_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/attachments_controller').default['show']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/attachments_controller').default['show']>>>
     }
   }
   'documents.store': {
@@ -500,6 +552,32 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/members_controller').default['store']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/members_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
       rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/members_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'invitations.store': {
+    methods: ["POST"]
+    pattern: '/invitations'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/contract').addMemberValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/contract').addMemberValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/invitations_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/invitations_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/invitations_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'invitations.revoke': {
+    methods: ["POST"]
+    pattern: '/invitations/:invitationId/revoke'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { invitationId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/invitations_controller').default['revoke']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/invitations_controller').default['revoke']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/invitations_controller').default['revoke']>>>
     }
   }
 }

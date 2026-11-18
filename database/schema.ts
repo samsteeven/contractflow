@@ -52,6 +52,48 @@ export class ApprovalSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
+export class AttachmentSchema extends BaseModel {
+  static $columns = [
+    'checksum',
+    'contentType',
+    'contractId',
+    'createdAt',
+    'filename',
+    'id',
+    'organizationId',
+    'scanner',
+    'sizeBytes',
+    'storageKey',
+    'updatedAt',
+    'uploadedBy',
+  ] as const
+  $columns = AttachmentSchema.$columns
+  @column()
+  declare checksum: string
+  @column()
+  declare contentType: string
+  @column()
+  declare contractId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare filename: string
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare organizationId: number
+  @column()
+  declare scanner: string
+  @column()
+  declare sizeBytes: number
+  @column()
+  declare storageKey: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare uploadedBy: number
+}
+
 export class AuditLogSchema extends BaseModel {
   static $columns = [
     'action',
@@ -278,6 +320,48 @@ export class ContractSchema extends BaseModel {
   declare updatedAt: DateTime | null
   @column()
   declare workflowId: number | null
+}
+
+export class InvitationSchema extends BaseModel {
+  static $columns = [
+    'acceptedAt',
+    'acceptedBy',
+    'createdAt',
+    'email',
+    'expiresAt',
+    'id',
+    'invitedBy',
+    'organizationId',
+    'revokedAt',
+    'role',
+    'tokenHash',
+    'updatedAt',
+  ] as const
+  $columns = InvitationSchema.$columns
+  @column.dateTime()
+  declare acceptedAt: DateTime | null
+  @column()
+  declare acceptedBy: number | null
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare email: string
+  @column.dateTime()
+  declare expiresAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare invitedBy: number
+  @column()
+  declare organizationId: number
+  @column.dateTime()
+  declare revokedAt: DateTime | null
+  @column()
+  declare role: string
+  @column()
+  declare tokenHash: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
 }
 
 export class MembershipSchema extends BaseModel {

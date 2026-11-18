@@ -33,6 +33,9 @@ router.post('webhooks/signature', [controllers.Webhooks, 'signature']).as('webho
 router.get('sandbox/sign/:signerId', [controllers.Sandbox, 'show']).as('sandbox.show')
 router.post('sandbox/sign/:signerId', [controllers.Sandbox, 'decide']).as('sandbox.decide')
 
+router.get('invitations/:token', [controllers.InvitationLinks, 'show']).as('invitations.show')
+router.post('invitations/:token', [controllers.InvitationLinks, 'accept']).as('invitations.accept')
+
 router.post('logout', [controllers.Session, 'destroy']).use(middleware.auth())
 
 router
@@ -52,6 +55,12 @@ router
       .as('approvals.decide')
 
     router.post('contracts/:id/comments', [controllers.Comments, 'store']).as('comments.store')
+    router
+      .post('contracts/:id/attachments', [controllers.Attachments, 'store'])
+      .as('attachments.store')
+    router
+      .get('contracts/:id/attachments/:attachmentId', [controllers.Attachments, 'show'])
+      .as('attachments.show')
     router.post('contracts/:id/document', [controllers.Documents, 'store']).as('documents.store')
     router.get('contracts/:id/document', [controllers.Documents, 'show']).as('documents.show')
 
@@ -91,8 +100,14 @@ router
 
     router.get('members', [controllers.Members, 'index']).as('members.index')
     router.post('members', [controllers.Members, 'store']).as('members.store')
+    router.post('invitations', [controllers.Invitations, 'store']).as('invitations.store')
+    router
+      .post('invitations/:invitationId/revoke', [controllers.Invitations, 'revoke'])
+      .as('invitations.revoke')
   })
   .where('id', router.matchers.number())
   .where('approvalId', router.matchers.number())
   .where('obligationId', router.matchers.number())
+  .where('invitationId', router.matchers.number())
+  .where('attachmentId', router.matchers.number())
   .use([middleware.auth(), middleware.organization()])

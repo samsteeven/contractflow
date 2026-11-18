@@ -52,5 +52,21 @@ services:
       - '127.0.0.1:${SMTP_PORT:-1035}:1025'
       - '127.0.0.1:${MAILPIT_UI_PORT:-8035}:8025'
 
+  # Antivirus des pièces jointes (clamd). Premier démarrage : une à deux minutes, le temps de
+  # charger les signatures ; l'état « healthy » dit quand il répond.
+  clamav:
+    image: clamav/clamav:stable
+    container_name: contractflow-clamav
+    ports:
+      - '127.0.0.1:${CLAMAV_PORT:-3310}:3310'
+    environment:
+      CLAMAV_NO_FRESHCLAMD: 'false'
+    healthcheck:
+      test: ['CMD', '/usr/local/bin/clamdcheck.sh']
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+
 volumes:
   pgdata:

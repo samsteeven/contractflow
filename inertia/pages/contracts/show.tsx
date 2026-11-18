@@ -21,6 +21,13 @@ type Props = InertiaProps<{
   audit: Data.AuditLog[]
   comments: Data.Comment[]
   document: { versionId: number; sizeBytes: number } | null
+  attachments: {
+    id: number
+    filename: string
+    sizeBytes: number
+    uploader: string
+    createdAt: string
+  }[]
   tracking: Tracking | null
   signature: {
     status: string
@@ -39,6 +46,7 @@ type Props = InertiaProps<{
     revise: boolean
     submit: boolean
     comment: boolean
+    attach: boolean
     manageTracking: boolean
     engageTerm: boolean
     requestSignature: boolean
@@ -62,6 +70,7 @@ export default function ContractsShow(props: Props) {
     audit,
     comments,
     document,
+    attachments,
     tracking,
     signature,
     workflows,
@@ -207,6 +216,56 @@ export default function ContractsShow(props: Props) {
                         disabled={processing}
                       >
                         Soumettre la version {latest.number}
+                      </button>
+                    </div>
+                  )}
+                </Form>
+              )}
+            </Section>
+          )}
+
+          {(attachments.length > 0 || can.attach) && (
+            <Section
+              title="Pièces jointes"
+              description="Chaque fichier est analysé par un antivirus avant d'être gardé. PDF, PNG, JPEG, DOCX ou XLSX, 10 Mo au plus."
+            >
+              {attachments.length > 0 && (
+                <ul className="rows" data-testid="attachments">
+                  {attachments.map((attachment) => (
+                    <li key={attachment.id}>
+                      <div>
+                        <a
+                          href={`/contracts/${contract.id}/attachments/${attachment.id}`}
+                          className="il"
+                        >
+                          {attachment.filename}
+                        </a>{' '}
+                        <span className="muted">
+                          {Math.max(1, Math.round(attachment.sizeBytes / 1024))} Ko ·{' '}
+                          {attachment.uploader}
+                        </span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {can.attach && (
+                <Form route="attachments.store" routeParams={{ id: contract.id }} resetOnSuccess>
+                  {({ processing }) => (
+                    <div className="form form--tight">
+                      <label htmlFor="attachment-file" className="field__label">
+                        Ajouter un fichier
+                      </label>
+                      <input
+                        id="attachment-file"
+                        name="file"
+                        type="file"
+                        className="field__input"
+                        accept=".pdf,.png,.jpg,.jpeg,.docx,.xlsx"
+                        required
+                      />
+                      <button type="submit" className="btn btn--secondary" disabled={processing}>
+                        {processing ? 'Analyse en cours…' : 'Envoyer'}
                       </button>
                     </div>
                   )}

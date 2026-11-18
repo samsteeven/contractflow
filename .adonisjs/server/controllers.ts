@@ -5,11 +5,14 @@
 
 export const controllers = {
   Approvals: () => import('#controllers/approvals_controller'),
+  Attachments: () => import('#controllers/attachments_controller'),
   Comments: () => import('#controllers/comments_controller'),
   Contracts: () => import('#controllers/contracts_controller'),
   Dashboard: () => import('#controllers/dashboard_controller'),
   Deadlines: () => import('#controllers/deadlines_controller'),
   Documents: () => import('#controllers/documents_controller'),
+  InvitationLinks: () => import('#controllers/invitation_links_controller'),
+  Invitations: () => import('#controllers/invitations_controller'),
   Members: () => import('#controllers/members_controller'),
   NewAccount: () => import('#controllers/new_account_controller'),
   Obligations: () => import('#controllers/obligations_controller'),

@@ -11,3 +11,5 @@
 | [007](0007-modeles-pdf-et-stockage-s3.md) | Modèles remplis une fois, PDF archivé par version, stockage S3 par URL pré-signée |
 | [008](0008-signature-par-webhook-signe.md) | Signature par prestataire, événements par webhook signé, contrat signé figé par la base |
 | [009](0009-echeances-et-rappels-par-file.md) | Échéances et rappels : jours calendaires, un rappel par palier, file Redis, livraison au moins une fois |
+| [010](0010-invitations-par-jeton.md) | Invitations par jeton à usage unique, empreinte seule en base |
+| [011](0011-pieces-jointes-antivirus-et-csp.md) | Pièces jointes refusées par défaut, antivirus ClamAV, politique de contenu |

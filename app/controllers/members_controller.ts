@@ -1,4 +1,5 @@
 import Membership from '#models/membership'
+import InvitationsController from '#controllers/invitations_controller'
 import OrganizationService from '#services/organization_service'
 import { ADMIN_ROLES } from '#services/vocabulary'
 import { addMemberValidator } from '#validators/contract'
@@ -23,6 +24,9 @@ export default class MembersController {
         role: member.role,
       })),
       canManage: ADMIN_ROLES.includes(membership.role),
+      invitations: ADMIN_ROLES.includes(membership.role)
+        ? await InvitationsController.pending(organization.id)
+        : [],
     })
   }
 

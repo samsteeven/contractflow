@@ -61,3 +61,81 @@ jobs:
 
       - name: Construction de production
         run: npm run build
+
+  # Un vrai navigateur contre l'application complète, avec une vraie boîte de réception (Mailpit)
+  # et un vrai antivirus (ClamAV, qui met une à deux minutes à charger ses signatures).
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CLAMAV_TEST_HOST: 127.0.0.1
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: contractflow
+          POSTGRES_PASSWORD: contractflow
+          POSTGRES_DB: contractflow_test
+        ports:
+          - 5438:5432
+        options: >-
+          --health-cmd "pg_isready -U contractflow -d contractflow_test"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6389:6379
+      mailpit:
+        image: axllent/mailpit:latest
+        ports:
+          - 1035:1025
+          - 8035:8025
+      clamav:
+        image: clamav/clamav:stable
+        ports:
+          - 3310:3310
+        options: >-
+          --health-cmd "/usr/local/bin/clamdcheck.sh"
+          --health-interval 10s --health-timeout 5s --health-retries 30
+          --health-start-period 60s
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Dépendances
+        run: npm ci
+
+      - name: Configuration
+        run: |
+          cp .env.example .env
+          node ace generate:key
+
+      - name: Antivirus réel (tests Japa)
+        run: node ace test --files tests/functional/attachments.spec.ts
+
+      - name: Application de test
+        run: |
+          node cypress/serve.mjs > e2e-server.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -sf http://localhost:3334/login > /dev/null && exit 0
+            sleep 2
+          done
+          cat e2e-server.log
+          exit 1
+
+      - name: Tests de bout en bout (Cypress)
+        run: npm run e2e
+
+      - name: Captures des échecs
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: cypress-screenshots
+          path: |
+            cypress/screenshots
+            e2e-server.log
+          if-no-files-found: ignore

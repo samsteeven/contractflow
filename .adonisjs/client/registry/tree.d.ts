@@ -24,6 +24,12 @@ export interface ApiDefinition {
     show: typeof routes['sandbox.show']
     decide: typeof routes['sandbox.decide']
   }
+  invitations: {
+    show: typeof routes['invitations.show']
+    accept: typeof routes['invitations.accept']
+    store: typeof routes['invitations.store']
+    revoke: typeof routes['invitations.revoke']
+  }
   dashboard: typeof routes['dashboard']
   contracts: {
     index: typeof routes['contracts.index']
@@ -38,6 +44,10 @@ export interface ApiDefinition {
   }
   comments: {
     store: typeof routes['comments.store']
+  }
+  attachments: {
+    store: typeof routes['attachments.store']
+    show: typeof routes['attachments.show']
   }
   documents: {
     store: typeof routes['documents.store']

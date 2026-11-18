@@ -62,4 +62,8 @@ export default await Env.create(new URL('../', import.meta.url), {
   // File de tâches (BullMQ sur Redis) pour les rappels d'échéances
   REDIS_HOST: Env.schema.string(),
   REDIS_PORT: Env.schema.number(),
+
+  // Antivirus (clamd). Sans hôte, les pièces jointes sont refusées : jamais acceptées sans analyse.
+  CLAMAV_HOST: Env.schema.string.optional(),
+  CLAMAV_PORT: Env.schema.number.optional(),
 })

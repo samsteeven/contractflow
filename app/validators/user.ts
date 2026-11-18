@@ -29,3 +29,13 @@ export const loginValidator = vine.create({
   email: email(),
   password: vine.string(),
 })
+
+/**
+ * Acceptation d'une invitation. L'adresse vient de l'invitation, jamais du formulaire.
+ * Le mot de passe n'est demandé que si l'adresse n'a pas encore de compte.
+ */
+export const acceptInvitationValidator = vine.create({
+  fullName: vine.string().trim().maxLength(200).nullable().optional(),
+  password: password().optional(),
+  passwordConfirmation: password().sameAs('password').optional(),
+})

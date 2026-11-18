@@ -34,6 +34,16 @@ export type RuleViolationReason =
   | 'obligation_closed'
   | 'not_assignee'
   | 'no_renewal_term'
+  | 'invitation_unknown'
+  | 'invitation_closed'
+  | 'invitation_wrong_account'
+  | 'account_exists'
+  | 'mail_failed'
+  | 'file_empty'
+  | 'file_too_large'
+  | 'file_type_not_allowed'
+  | 'file_infected'
+  | 'scanner_unavailable'
 
 /**
  * Une règle métier refuse l'action. `reason` identifie la règle (les tests s'appuient dessus),
@@ -45,7 +55,7 @@ export default class RuleViolation extends Exception {
   constructor(
     public reason: RuleViolationReason,
     message: string,
-    status: 401 | 403 | 409 | 422 = 409
+    status: 401 | 403 | 404 | 409 | 413 | 422 | 502 | 503 = 409
   ) {
     super(message, { status, code: RuleViolation.code })
   }
