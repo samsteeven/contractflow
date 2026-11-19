@@ -27,8 +27,8 @@ describe('Affichage sur téléphone', () => {
     it(`${page} tient dans la largeur de l'écran`, () => {
       cy.visit(page)
       cy.get('main').should('be.visible')
-      cy.document().then((doc) => {
-        expect(doc.documentElement.scrollWidth, 'largeur du contenu').to.be.at.most(375)
+      cy.get('html').then(($html) => {
+        expect($html[0].scrollWidth, 'largeur du contenu').to.be.at.most(375)
       })
     })
   }
@@ -37,8 +37,8 @@ describe('Affichage sur téléphone', () => {
     cy.visit('/contracts')
     cy.contains('a', 'Hébergement et infogérance').click()
     cy.get('[data-testid=obligations]').should('be.visible')
-    cy.document().then((doc) => {
-      expect(doc.documentElement.scrollWidth).to.be.at.most(375)
+    cy.get('html').then(($html) => {
+      expect($html[0].scrollWidth).to.be.at.most(375)
     })
   })
 
