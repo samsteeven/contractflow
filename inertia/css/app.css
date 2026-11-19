@@ -618,11 +618,16 @@ input {
   height: 48px;
   display: flex;
   align-items: center;
+  /* Sur petit écran la navigation défile au lieu d'élargir la page. */
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
   border-bottom: 1px solid var(--line);
   background: var(--card);
 }
 .subnav__inner {
   display: flex;
+  min-width: max-content;
   align-items: center;
   gap: 22px;
   padding: 0 30px;
@@ -630,6 +635,8 @@ input {
 }
 .subnav__item {
   height: 100%;
+  flex: none;
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -891,6 +898,10 @@ input {
   }
 }
 @media (max-width: 720px) {
+  .subnav__inner {
+    padding: 0 16px;
+    gap: 18px;
+  }
   .page {
     padding: 28px 16px 48px;
   }

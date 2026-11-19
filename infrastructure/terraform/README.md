@@ -43,6 +43,35 @@ terraform init -backend-config=backend.hcl
 terraform plan -out=prod.tfplan                   # lire le plan avant d'appliquer
 ```
 
+### Pas à pas (commandes, à lancer par toi, avec tes identifiants AWS)
+
+```bash
+# 0. Identité et région : vérifier que c'est bien le bon compte avant tout
+aws sts get-caller-identity
+
+# 1. Bucket d'état (nom unique au monde)
+aws s3api create-bucket --bucket NOM-DU-BUCKET --region eu-west-3 \
+  --create-bucket-configuration LocationConstraint=eu-west-3
+aws s3api put-public-access-block --bucket NOM-DU-BUCKET --public-access-block-configuration \
+  BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
+aws s3api put-bucket-versioning --bucket NOM-DU-BUCKET --versioning-configuration Status=Enabled
+aws s3api put-bucket-encryption --bucket NOM-DU-BUCKET --server-side-encryption-configuration \
+  '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"}}]}'
+
+# 2. Le dépôt d'images seul, puis une première image (l'étiquette « initial » est celle par défaut)
+terraform init -backend-config=backend.hcl
+terraform apply -target=aws_ecr_repository.app
+aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin COMPTE.dkr.ecr.eu-west-3.amazonaws.com
+docker build -t COMPTE.dkr.ecr.eu-west-3.amazonaws.com/contractflow-prod:initial ../..
+docker push COMPTE.dkr.ecr.eu-west-3.amazonaws.com/contractflow-prod:initial
+
+# 3. Tout le reste : lire le plan avant d'appliquer
+terraform plan -out=prod.tfplan
+terraform apply prod.tfplan
+```
+
+Le certificat attend la validation DNS, puis ClamAV met une à deux minutes à charger : les premières tâches web peuvent sembler en échec avant de passer. Après l'`apply`, demander à SES la sortie du bac à sable.
+
 `terraform apply` crée des ressources facturées (NAT, RDS Multi-AZ, ElastiCache, Fargate : de l'ordre de 150 à 200 € par mois en configuration par défaut ; une estimation, pas une mesure).
 
 ## Déployer une version

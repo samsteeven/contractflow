@@ -6,6 +6,7 @@ export type ScannedRoutes = {
   ALL: {
     'drive.fs.serve': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
     'home': { paramsTuple?: []; params?: {} }
+    'health': { paramsTuple?: []; params?: {} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'new_account.store': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
@@ -52,6 +53,7 @@ export type ScannedRoutes = {
   GET: {
     'drive.fs.serve': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
     'home': { paramsTuple?: []; params?: {} }
+    'health': { paramsTuple?: []; params?: {} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
     'sandbox.show': { paramsTuple: [ParamValue]; params: {'signerId': ParamValue} }
@@ -72,6 +74,7 @@ export type ScannedRoutes = {
   HEAD: {
     'drive.fs.serve': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
     'home': { paramsTuple?: []; params?: {} }
+    'health': { paramsTuple?: []; params?: {} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
     'sandbox.show': { paramsTuple: [ParamValue]; params: {'signerId': ParamValue} }

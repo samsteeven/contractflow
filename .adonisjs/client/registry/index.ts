@@ -20,6 +20,12 @@ const routes = {
     tokens: [[0,"/"]],
     types: placeholder as Registry['home']['types'],
   },
+  'health': {
+    methods: ["GET","HEAD"],
+    pattern: '/health',
+    tokens: [[0,"health"]],
+    types: placeholder as Registry['health']['types'],
+  },
   'new_account.create': {
     methods: ["GET","HEAD"],
     pattern: '/signup',

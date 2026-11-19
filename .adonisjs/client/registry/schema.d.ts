@@ -34,6 +34,19 @@ export interface Registry {
       rawResponse: ExtractRawResponse<unknown>
     }
   }
+  'health': {
+    methods: ["GET","HEAD"]
+    pattern: '/health'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/health_controller').default['handle']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/health_controller').default['handle']>>>
+      rawResponse: ExtractRawResponse<Awaited<ReturnType<import('#controllers/health_controller').default['handle']>>>
+    }
+  }
   'new_account.create': {
     methods: ["GET","HEAD"]
     pattern: '/signup'
