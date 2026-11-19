@@ -27,6 +27,14 @@ export const http = defineConfig({
   allowMethodSpoofing: false,
 
   /**
+   * Derrière le répartiteur de charge (ALB), l'adresse et le protocole réels du client sont dans
+   * les en-têtes X-Forwarded-*. On ne fait confiance qu'au saut direct, et seulement si
+   * TRUST_PROXY est activé : sinon n'importe qui pourrait forger ces en-têtes.
+   */
+  trustProxy: (_address: string, distance: number) =>
+    env.get('TRUST_PROXY') === true && distance < 1,
+
+  /**
    * Enabling async local storage will let you access HTTP context
    * from anywhere inside your application.
    */

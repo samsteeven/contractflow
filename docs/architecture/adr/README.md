@@ -13,3 +13,4 @@
 | [009](0009-echeances-et-rappels-par-file.md) | Échéances et rappels : jours calendaires, un rappel par palier, file Redis, livraison au moins une fois |
 | [010](0010-invitations-par-jeton.md) | Invitations par jeton à usage unique, empreinte seule en base |
 | [011](0011-pieces-jointes-antivirus-et-csp.md) | Pièces jointes refusées par défaut, antivirus ClamAV, politique de contenu |
+| [012](0012-image-docker-et-infrastructure-aws.md) | Image de production, Fargate, réseau privé, secrets, déploiement séparé de l'infrastructure |

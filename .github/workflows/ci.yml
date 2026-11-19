@@ -139,3 +139,52 @@ jobs:
             cypress/screenshots
             e2e-server.log
           if-no-files-found: ignore
+
+  # L'image de production se construit et démarre : migration, sonde de santé, worker, antivirus.
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Construire l'image et démarrer l'application complète
+        run: docker compose --profile app up -d --build
+
+      - name: Sonde de santé
+        run: |
+          for _ in $(seq 1 90); do
+            curl -sf http://localhost:3340/health && exit 0
+            sleep 2
+          done
+          docker compose --profile app logs
+          exit 1
+
+      - name: Le worker écoute et l'utilisateur n'est pas root
+        run: |
+          docker compose --profile app logs worker | grep "file des rappels en écoute"
+          test "$(docker compose --profile app exec -T app id -u)" != "0"
+
+  # Terraform : mise en forme, validité, et analyse des défauts de configuration. Rien n'est appliqué.
+  terraform:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: infrastructure/terraform
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.13.0
+
+      - run: terraform fmt -recursive -check
+
+      - run: terraform init -backend=false -input=false
+
+      - run: terraform validate
+
+      - name: Analyse de sécurité (HIGH et CRITICAL bloquent)
+        run: |
+          docker run --rm -v "$PWD:/work" -w /work aquasec/trivy:latest config \
+            --severity HIGH,CRITICAL --exit-code 1 --skip-dirs .terraform .

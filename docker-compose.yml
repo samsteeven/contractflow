@@ -68,5 +68,77 @@ services:
       retries: 30
       start_period: 60s
 
+  # --- Application complète (profil « app ») : `docker compose --profile app up --build` ---
+  # La même image qu'en production. Les services ci-dessus restent seuls par défaut, pour le
+  # développement avec `npm run dev`.
+  migrate:
+    profiles: ['app']
+    build: .
+    image: contractflow:local
+    command: ['node', 'ace', 'migration:run', '--force']
+    environment: &app-env
+      NODE_ENV: production
+      APP_KEY: ${APP_KEY:-local-only-key-local-only-key-local-only-key}
+      APP_URL: http://localhost:${APP_PORT:-3340}
+      HOST: 0.0.0.0
+      PORT: '3333'
+      LOG_LEVEL: info
+      SESSION_DRIVER: cookie
+      DB_HOST: postgres
+      DB_PORT: '5432'
+      DB_USER: contractflow
+      DB_PASSWORD: contractflow
+      DB_DATABASE: contractflow
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      SMTP_HOST: mailpit
+      SMTP_PORT: '1025'
+      CLAMAV_HOST: clamav
+      CLAMAV_PORT: '3310'
+      DRIVE_DISK: s3
+      S3_BUCKET: contractflow-documents
+      S3_ENDPOINT: http://s3:9090
+      AWS_REGION: eu-west-3
+      AWS_ACCESS_KEY_ID: local
+      AWS_SECRET_ACCESS_KEY: local
+      SIGNATURE_PROVIDER: sandbox
+      SIGNATURE_WEBHOOK_SECRET: ${SIGNATURE_WEBHOOK_SECRET:-local-only-webhook-secret-local-only}
+      MAIL_MAILER: smtp
+      MAIL_FROM_NAME: ContractFlow
+      MAIL_FROM_ADDRESS: contrats@contractflow.test
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  app:
+    profiles: ['app']
+    image: contractflow:local
+    environment: *app-env
+    ports:
+      - '127.0.0.1:${APP_PORT:-3340}:3333'
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      clamav:
+        condition: service_healthy
+      s3:
+        condition: service_started
+
+  # Envoi des rappels : un processus à part, comme en production.
+  worker:
+    profiles: ['app']
+    image: contractflow:local
+    command: ['node', 'ace', 'queue:work']
+    environment: *app-env
+    healthcheck:
+      disable: true
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
 volumes:
   pgdata:

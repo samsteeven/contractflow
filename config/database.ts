@@ -13,6 +13,7 @@ const dbConfig = defineConfig({
         user: env.get('DB_USER'),
         password: env.get('DB_PASSWORD').release(),
         database: env.get('DB_DATABASE'),
+        ssl: env.get('DB_SSL') ? { rejectUnauthorized: true } : false,
       },
       migrations: {
         naturalSort: true,
@@ -23,7 +24,8 @@ const dbConfig = defineConfig({
        * viennent des migrations, jamais d'une déclaration écrite à la main.
        */
       schemaGeneration: {
-        enabled: true,
+        // Régénéré en développement seulement : jamais dans une image de production.
+        enabled: env.get('NODE_ENV') !== 'production',
         rulesPaths: ['./database/schema_rules.js'],
       },
     },

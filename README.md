@@ -2,7 +2,7 @@
 
 Plateforme SaaS de gestion des contrats en **AdonisJS 7**, **Inertia** et **React 19**, sur PostgreSQL. Une organisation y rédige ses contrats et définit ses circuits de validation (juridique, puis direction, puis propriétaire…). Elle fait ensuite valider chaque contrat étape par étape, sur un texte qui ne change plus, avec un journal de tout ce qui s'est passé.
 
-> **État : incrément 5.** Organisations, rôles, contrats versionnés, circuits configurables, décisions, comparaison de versions, journal, modèles à variables, commentaires, PDF archivés sur S3, **signature électronique (bac à sable) par webhook signé et contrat signé figé**, **durée, obligations, reconduction et rappels par e-mail via une file Redis**, **invitations par e-mail, pièces jointes analysées par antivirus, politique de contenu (CSP) et tests de bout en bout Cypress**. Voir [la feuille de route](#feuille-de-route).
+> **État : incrément 6.** Organisations, rôles, contrats versionnés, circuits configurables, décisions, comparaison de versions, journal, modèles à variables, commentaires, PDF archivés sur S3, **signature électronique (bac à sable) par webhook signé et contrat signé figé**, **durée, obligations, reconduction et rappels par e-mail via une file Redis**, **invitations par e-mail, pièces jointes analysées par antivirus, politique de contenu (CSP) et tests de bout en bout Cypress**, **image Docker de production et infrastructure AWS décrite en Terraform (validée, jamais appliquée)**. Voir [la feuille de route](#feuille-de-route).
 
 ## Le parcours qui fonctionne
 
@@ -64,6 +64,8 @@ Plateforme SaaS de gestion des contrats en **AdonisJS 7**, **Inertia** et **Reac
 | Concurrence | Quatre décisions simultanées, cinq exécutions avec et sans verrou : sans verrou le test échoue 5 fois sur 5 | Sous forte charge |
 | Interface | Toutes les pages parcourues (échéances et suivi de contrat compris : reconduction exécutée dans le navigateur) dans un navigateur sur les données de démonstration, sans erreur dans la console : tableau de bord, liste filtrée, création, détail avec comparaison, décision (refus d'un rejet non motivé, validation commentée), circuits, équipe | Les styles en ligne restent permis par la CSP ; pas de test d'accessibilité automatisé |
 | Bout en bout | **Cypress, 15 scénarios dans 5 fichiers**, contre l'application complète (PostgreSQL, Mailpit, ClamAV) : parcours rédaction, rejet motivé, validation par deux rôles ; invitation lue dans la vraie boîte de réception, puis compte créé et lien rejeté la seconde fois ; pièces jointes saines, infectées et trompeuses ; échéances et reconduction ; en-têtes et XSS | La CSP ne se voit pas dans le navigateur de Cypress (il la retire) : elle est vérifiée par requêtes directes. Un seul navigateur (Electron) |
+| Image de production (incrément 6) | Construite, démarrée avec la pile complète (`docker compose --profile app up`) : migration terminée, `/health` à 200 avec la base, worker en écoute sur Redis, pages et ressources servies, utilisateur non root, certificat RDS lisible, un contenu sain analysé par le vrai ClamAV depuis le conteneur ; la CI le refait à chaque envoi | La détection d'un fichier infecté depuis le conteneur (couverte par les tests de la CI contre ClamAV, pas rejouée dans l'image) ; la taille de l'image (765 Mo) n'a pas été réduite |
+| Terraform | `fmt`, `validate` et analyse Trivy (aucun constat HIGH ou CRITICAL ; sept constats LOW acceptés) ; sortie des tâches réduite aux ports nécessaires après la première analyse | **Jamais appliqué, jamais planifié** (aucun compte AWS utilisé) : on ignore si AWS accepte chaque paramètre, si les droits IAM suffisent, si ClamAV tient dans la mémoire prévue, si SES envoie. Le workflow de déploiement n'a jamais tourné non plus |
 | Types | Compilation TypeScript stricte du serveur et du front ; données des pages et routes nommées typées de bout en bout | |
 
 ## Architecture
@@ -88,6 +90,7 @@ React (inertia/pages) ◄── Inertia ── contrôleurs : valident (VineJS),
 | `app/policies` | Droits par rôle (Bouncer) |
 | `app/middleware/organization_middleware.ts` | Organisation courante et rôle, depuis l'appartenance |
 | `database/migrations` | Schéma, contraintes et déclencheurs ; `database/schema.ts` en est régénéré |
+| `Dockerfile`, `infrastructure/terraform` | Image de production ; infrastructure AWS ([README](infrastructure/terraform/README.md)) |
 | `cypress` | Scénarios de bout en bout (`e2e`), commandes (`support`), lanceur de l'application de test (`serve.mjs`) |
 | `inertia/pages` | Tableau de bord, contrats (liste, création, détail), circuits, équipe, connexion |
 | `tests` | `unit` (différence de textes, empreinte) et `functional` (services et HTTP, contre PostgreSQL) |
@@ -111,6 +114,16 @@ node ace reminders:scan                  # facultatif : lancer le parcours tout 
 ```
 
 Les données de démonstration créent l'organisation « Atelier Nova » : un contrat approuvé après un rejet, un en signature, un signé avec sa durée et trois obligations (dont une en retard), deux en validation, un brouillon et deux circuits. Les e-mails de rappel se lisent dans Mailpit (http://localhost:8035). Il y a un compte par rôle, `<prénom>@atelier-nova.test`, avec le mot de passe `contractflow-demo` : olivia (propriétaire), adrien (administrateur), lea (juridique), marc (direction), remi (rédacteur), vera (lecteur).
+
+### Application complète dans Docker
+
+```bash
+docker compose --profile app up -d --build   # migration, application (http://localhost:3340), worker, avec les services ci-dessus
+curl http://localhost:3340/health
+docker compose --profile app down
+```
+
+C'est la même image qu'en production ; seuls les identifiants du compose sont factices. Le déploiement sur AWS est décrit dans [infrastructure/terraform](infrastructure/terraform/README.md).
 
 ## Tests et qualité
 
@@ -143,6 +156,8 @@ Sans `CLAMAV_TEST_HOST=127.0.0.1`, trois tests contre un vrai clamd sont ignoré
 - **Antivirus** : un fichier accepté n'est pas rescanné quand les signatures évoluent ; le fichier entier est lu en mémoire (10 Mo au plus) ; ClamAV demande environ 1,5 Go.
 - **Pas de téléversement direct vers S3** : le fichier passe par le serveur, à cause de l'analyse.
 - **Une seule organisation par utilisateur** dans l'interface : rien n'empêche d'appartenir à deux organisations, mais aucun écran ne permet de choisir.
+- **Infrastructure jamais appliquée** : voir l'[ADR-012](docs/architecture/adr/0012-image-docker-et-infrastructure-aws.md) ; une seule passerelle NAT, pas de WAF, pas d'alarmes, pas de préproduction.
+- **Bac à sable en production** : le seul fournisseur de signature est fictif ; un déploiement réel signerait pour de faux tant qu'un adaptateur n'est pas écrit.
 - **Circuits linéaires** : pas d'étapes parallèles ni de conditions (montant, type de contrat).
 - **Pas de suppression** : un contrat, une version ou une trace ne s'effacent pas.
 
@@ -155,4 +170,4 @@ Sans `CLAMAV_TEST_HOST=127.0.0.1`, trois tests contre un vrai clamd sont ignoré
 | 3 | Signature électronique via un prestataire (bac à sable), webhooks entrants signés, preuves archivées, contrat signé gelé | **fait** |
 | 4 | Obligations, échéances et renouvellements, rappels par tâches de fond (BullMQ, Redis), e-mails | **fait** |
 | 5 | Invitations, tests de bout en bout (Cypress), sécurité (CSP, antivirus sur les fichiers) | **fait** |
-| 6 | Docker, Terraform, déploiement AWS | à faire |
+| 6 | Docker, Terraform, déploiement AWS | **fait** (image éprouvée ; Terraform validé, pas appliqué) |

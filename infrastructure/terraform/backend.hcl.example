@@ -1,0 +1,8 @@
+# Copier en backend.hcl (ignoré par git) puis : terraform init -backend-config=backend.hcl
+# Le bucket est créé à la main avant : versionné, chiffré, accès public bloqué, accès restreint
+# (l'état contient les secrets générés par Terraform).
+bucket       = "contractflow-terraform-state-REMPLACER"
+key          = "prod/terraform.tfstate"
+region       = "eu-west-3"
+encrypt      = true
+use_lockfile = true

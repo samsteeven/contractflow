@@ -1,0 +1,80 @@
+name: Déploiement
+
+# Déclenchement manuel : tant qu'aucune infrastructure n'existe (voir infrastructure/terraform/README.md),
+# il n'y a rien à déployer. Le rôle AWS est assumé par OIDC, sans clé stockée dans GitHub, et
+# seulement depuis la branche main de ce dépôt.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # jeton OIDC pour assumer le rôle AWS
+
+concurrency:
+  group: deploiement
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+  ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
+
+jobs:
+  deploiement:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Construire et pousser l'image
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+        run: |
+          IMAGE="$REGISTRY/$ECR_REPOSITORY:${GITHUB_SHA}"
+          docker build -t "$IMAGE" .
+          docker push "$IMAGE"
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+
+      # Une révision par famille de tâches : on reprend la définition en place et on n'y change que l'image.
+      - name: Enregistrer les nouvelles révisions
+        run: |
+          for family in web worker migrate; do
+            aws ecs describe-task-definition --task-definition "$ECR_REPOSITORY-$family" \
+              --query taskDefinition > "$family.json"
+            jq --arg image "$IMAGE" '
+              .containerDefinitions |= map(if .name == "app" then .image = $image else . end)
+              | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities,
+                    .registeredAt, .registeredBy)' "$family.json" > "$family.new.json"
+            ARN=$(aws ecs register-task-definition --cli-input-json "file://$family.new.json" \
+              --query taskDefinition.taskDefinitionArn --output text)
+            echo "${family^^}_TASK=$ARN" >> "$GITHUB_ENV"
+          done
+
+      # Les migrations passent avant le remplacement des services : si elles échouent, rien ne change.
+      - name: Migrer la base
+        run: |
+          NETWORK=$(aws ecs describe-services --cluster "$ECS_CLUSTER" --services worker \
+            --query 'services[0].networkConfiguration' --output json)
+          TASK=$(aws ecs run-task --cluster "$ECS_CLUSTER" --launch-type FARGATE \
+            --task-definition "$MIGRATE_TASK" --network-configuration "$NETWORK" \
+            --query 'tasks[0].taskArn' --output text)
+          aws ecs wait tasks-stopped --cluster "$ECS_CLUSTER" --tasks "$TASK"
+          CODE=$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$TASK" \
+            --query 'tasks[0].containers[0].exitCode' --output text)
+          echo "Code de sortie de la migration : $CODE"
+          test "$CODE" = "0"
+
+      - name: Déployer le web et le worker
+        run: |
+          aws ecs update-service --cluster "$ECS_CLUSTER" --service web --task-definition "$WEB_TASK" > /dev/null
+          aws ecs update-service --cluster "$ECS_CLUSTER" --service worker --task-definition "$WORKER_TASK" > /dev/null
+          aws ecs wait services-stable --cluster "$ECS_CLUSTER" --services web worker

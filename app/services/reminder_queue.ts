@@ -8,6 +8,8 @@ export const QUEUE_NAME = 'reminders'
 const connection = () => ({
   host: env.get('REDIS_HOST'),
   port: env.get('REDIS_PORT'),
+  password: env.get('REDIS_PASSWORD')?.release(),
+  tls: env.get('REDIS_TLS') ? {} : undefined,
   // Exigé par BullMQ pour les connexions du worker.
   maxRetriesPerRequest: null,
 })

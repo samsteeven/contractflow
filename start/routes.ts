@@ -15,6 +15,9 @@ import router from '@adonisjs/core/services/router'
 
 router.on('/').renderInertia('home', {}).as('home')
 
+// Sonde du répartiteur de charge : hors session, sans effet de bord.
+router.get('health', [controllers.Health, 'handle']).as('health')
+
 router
   .group(() => {
     router.get('signup', [controllers.NewAccount, 'create'])

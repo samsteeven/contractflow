@@ -1,0 +1,11 @@
+# Copier en terraform.tfvars (ignoré par git).
+domain_name     = "contrats.exemple.fr"
+route53_zone_id = "Z0123456789ABCDEFGHIJ"
+
+# Rôle de déploiement pour GitHub Actions ; laisser vide pour ne pas le créer.
+github_repository = "samsteeven/contractflow"
+
+# Environnement de démonstration moins cher (à ne pas utiliser pour de vraies données) :
+# db_multi_az            = false
+# db_deletion_protection = false
+# web_desired_count      = 1

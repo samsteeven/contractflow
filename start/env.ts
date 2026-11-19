@@ -28,6 +28,8 @@ export default await Env.create(new URL('../', import.meta.url), {
   DB_USER: Env.schema.string(),
   DB_PASSWORD: Env.schema.secret(),
   DB_DATABASE: Env.schema.string(),
+  // Connexion chiffrée (RDS) : vérifiée avec le certificat de l'autorité d'AWS (NODE_EXTRA_CA_CERTS)
+  DB_SSL: Env.schema.boolean.optional(),
 
   // Session
   SESSION_DRIVER: Env.schema.enum(['cookie', 'memory', 'database'] as const),
@@ -58,12 +60,21 @@ export default await Env.create(new URL('../', import.meta.url), {
   MAIL_FROM_ADDRESS: Env.schema.string(),
   SMTP_HOST: Env.schema.string(),
   SMTP_PORT: Env.schema.number(),
+  // Authentification SMTP (Amazon SES) ; absentes en local avec Mailpit
+  SMTP_USERNAME: Env.schema.string.optional(),
+  SMTP_PASSWORD: Env.schema.secret.optional(),
 
   // File de tâches (BullMQ sur Redis) pour les rappels d'échéances
   REDIS_HOST: Env.schema.string(),
   REDIS_PORT: Env.schema.number(),
+  // ElastiCache : jeton d'authentification et chiffrement en transit
+  REDIS_PASSWORD: Env.schema.secret.optional(),
+  REDIS_TLS: Env.schema.boolean.optional(),
 
   // Antivirus (clamd). Sans hôte, les pièces jointes sont refusées : jamais acceptées sans analyse.
   CLAMAV_HOST: Env.schema.string.optional(),
   CLAMAV_PORT: Env.schema.number.optional(),
+
+  // Derrière un répartiteur de charge : faire confiance à ses en-têtes X-Forwarded-*
+  TRUST_PROXY: Env.schema.boolean.optional(),
 })

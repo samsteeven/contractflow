@@ -11,6 +11,7 @@ export const controllers = {
   Dashboard: () => import('#controllers/dashboard_controller'),
   Deadlines: () => import('#controllers/deadlines_controller'),
   Documents: () => import('#controllers/documents_controller'),
+  Health: () => import('#controllers/health_controller'),
   InvitationLinks: () => import('#controllers/invitation_links_controller'),
   Invitations: () => import('#controllers/invitations_controller'),
   Members: () => import('#controllers/members_controller'),

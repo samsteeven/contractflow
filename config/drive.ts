@@ -18,10 +18,16 @@ const driveConfig = defineConfig({
       visibility: 'private',
     }),
     s3: services.s3({
-      credentials: {
-        accessKeyId: env.get('AWS_ACCESS_KEY_ID', ''),
-        secretAccessKey: env.get('AWS_SECRET_ACCESS_KEY', ''),
-      },
+      // Sur AWS, aucun identifiant : le rôle de la tâche fournit les droits (chaîne par défaut du SDK).
+      // Des identifiants vides empêcheraient ce mécanisme ; on ne les passe que s'ils existent.
+      ...(env.get('AWS_ACCESS_KEY_ID') && env.get('AWS_SECRET_ACCESS_KEY')
+        ? {
+            credentials: {
+              accessKeyId: env.get('AWS_ACCESS_KEY_ID')!,
+              secretAccessKey: env.get('AWS_SECRET_ACCESS_KEY')!,
+            },
+          }
+        : {}),
       region: env.get('AWS_REGION', 'eu-west-3'),
       bucket: env.get('S3_BUCKET', 'contractflow-documents'),
       endpoint: env.get('S3_ENDPOINT'),
